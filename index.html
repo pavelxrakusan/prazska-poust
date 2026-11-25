@@ -1476,9 +1476,9 @@ var GRADE={uniforms:{tDiffuse:{value:null},uExp:{value:1.0},uVig:{value:1.2},uT:
     '  for(int i=0;i<28;i++){p+=d;vec3 sm=texture2D(tDiffuse,clamp(p,0.001,0.999)).rgb;acc+=sm*max(dot(sm,vec3(0.333))-0.6,0.0)*w;w*=0.94;}',
     '  c+=acc*uRay*0.11*vec3(1.0,0.78,0.48);}',
     ' c*=uExp;c=aces(c);float l=dot(c,vec3(0.299,0.587,0.114));',
-    ' c=mix(vec3(l),c,1.34);c=mix(c*vec3(0.88,0.98,1.08),c*vec3(1.12,1.0,0.82),smoothstep(0.10,0.75,l));c=c*c*(3.0-2.0*c)*0.2+c*0.8;',
-    ' c=mix(c,c*vec3(1.05,0.97,0.86),0.35);',
-    ' vec2 q=vUv-0.5;c*=1.0-dot(q,q)*uVig;c=mix(c,c*vec3(1.0,0.86,0.7),clamp(dot(q,q)*1.3,0.0,0.4));',
+    ' c=mix(vec3(l),c,1.34);c=mix(c*vec3(0.88,0.98,1.08),c*vec3(1.06,1.0,0.92),smoothstep(0.10,0.75,l));c=c*c*(3.0-2.0*c)*0.2+c*0.8;',
+    ' c=mix(c,c*vec3(1.04,0.98,0.9),0.18);',
+    ' vec2 q=vUv-0.5;c*=1.0-dot(q,q)*uVig;c=mix(c,c*vec3(1.0,0.92,0.82),clamp(dot(q,q)*1.3,0.0,0.3));',
     ' c+=(hash(vUv*vec2(1731.0,977.0)+uT)-0.5)*0.014;gl_FragColor=vec4(c,1.0);}'].join('\n')};
 function initEnv(){
   if(LOWQ)return;
@@ -1881,7 +1881,7 @@ function buildWater(){
 
 // ---------- budovy ----------
 var BCOL={
-  0:[[0xf1e6cf,0xe9dcc0,0xf3ecd8,0xe8d5a8,0xded6c4,0xf0d9b5]],
+  0:[[0xf1e6cf,0xe9dcc0,0xf3ecd8,0xe8d5a8,0xf4d98a,0xe8b88a,0xd9e2c0,0xcfe0ea,0xf2c9bd,0xf0d9b5]],
   1:[[0xe2ddd2,0xd8d3c6,0xe6dfcd,0xcfd4d2,0xe4d7bd]],
   2:[[0xb8b6ae,0xa9a9a2,0x9fa7ab,0xb4a28c,0xc2bcae]],
   3:[[0xa8a39a,0x9b968e,0xb0a690]],
@@ -1910,13 +1910,23 @@ function buildBuildings(){
     q(1,3,7,5,c,0,-s);q(0,4,6,2,-c,0,s);
   }
   var DET=!LOWQ;
+  function fq(p0,p1,p2,p3,ox,oz,cc){
+    cc=cc.isColor?cc:new THREE.Color(cc);
+    var e1=[p1[0]-p0[0],p1[1]-p0[1],p1[2]-p0[2]],e2=[p2[0]-p0[0],p2[1]-p0[1],p2[2]-p0[2]];
+    var nxx=e1[1]*e2[2]-e1[2]*e2[1],nzz=e1[0]*e2[1]-e1[1]*e2[0];
+    if(nxx*ox+nzz*oz<0){var t=p1;p1=p3;p3=t;}
+    tri(p0,p1,p2,ox,0,oz,cc,ZU,ZU,ZU);tri(p0,p2,p3,ox,0,oz,cc,ZU,ZU,ZU);
+  }
+  var PASTEL=[0xf0dfa8,0xe8c9a0,0xd3e2cb,0xd6e0ea,0xf0d2c8,0xf3ecd2],ACC=[0xd9a441,0xc4553b,0x4f8f7a,0x4e7fa8,0xd98f93,0xa9b94f,0x7a5a9a];
   MAPD.b.forEach(function(b){
     var typ=b[0],h=b[1],p=pts(b[2],.5),n=p.length;if(n<3)return;
     var mn=1e9,mx=-1e9,i;
     for(i=0;i<n;i++){var hh=H(p[i][0],p[i][1]);mn=Math.min(mn,hh);mx=Math.max(mx,hh);}
     var base=mn-1.5,gr=mn,top=Math.max(mx,mn+.3)+h,vS=P.length/3;
     var pal=BCOL[typ][0];col.setHex(pal[(Math.random()*pal.length)|0]);
+    if(typ===1&&Math.random()<.6)col.setHex(PASTEL[(Math.random()*PASTEL.length)|0]);
     var sh=.92+Math.random()*.12;col.multiplyScalar(sh);
+    var accC=new THREE.Color(ACC[(Math.random()*ACC.length)|0]),plC=new THREE.Color(col).multiplyScalar(.5).lerp(new THREE.Color(0x6a5a48),.4),coC=new THREE.Color(col).lerp(new THREE.Color(0xffffff),.55),drC=new THREE.Color(0x3a2e24);
     var win=typ!==3,wsp=typ===2?6:(typ===0?3.4:3.0),fh=typ===2?4.5:2.9;
     var cx=0,cz=0;for(i=0;i<n;i++){cx+=p[i][0];cz+=p[i][1];}cx/=n;cz/=n;
     // stěny
@@ -1934,6 +1944,30 @@ function buildBuildings(){
         for(var fl=1;fl<nfl;fl++){var by=gr+fl*fh+.5;
           bxs(bmx+bo*.55,by,bmz+bz*.55,L*.5,.16,1.1,bry,0xcfc9bb);bxs(bmx+bo*1.05,by+.55,bmz+bz*1.05,L*.5,1.0,.07,bry,0x8e8a80);}
         bxs(bmx+bo*.5,gr+1.1,bmz+bz*.5,3.4,.25,1.3,bry,0x4a4640);
+      }
+      if(DET&&typ!==3&&L>3){
+        var fox=nx,foz=nz,fmx=(a[0]+c[0])/2-cx,fmz=(a[1]+c[1])/2-cz;if(fmx*fox+fmz*foz<0){fox=-fox;foz=-foz;}
+        var ex=dx/L,ez=dz/L,gy0=H(a[0],a[1]);
+        function wp(t,y,o){return [a[0]+dx*t+fox*o,y,a[1]+dz*t+foz*o];}
+        // sokl a římsa
+        fq(wp(0,gr-.3,.1),wp(1,gr-.3,.1),wp(1,gr+.9,.1),wp(0,gr+.9,.1),fox,foz,plC);
+        if(h>5)fq(wp(0,top-.7,.14),wp(1,top-.7,.14),wp(1,top,.14),wp(0,top,.14),fox,foz,coC);
+        if(typ===1&&h>7&&L>10){
+          var ns=Math.max(1,Math.round(L/13));
+          for(var si=0;si<ns;si++){var tc=(si+.5)/ns,hw=.9/L;
+            fq(wp(tc-hw,gr+.9,.12),wp(tc+hw,gr+.9,.12),wp(tc+hw,top-.7,.12),wp(tc-hw,top-.7,.12),fox,foz,accC);
+            fq(wp(tc-.55/L,gr,.16),wp(tc+.55/L,gr,.16),wp(tc+.55/L,gr+2.3,.16),wp(tc-.55/L,gr+2.3,.16),fox,foz,drC);
+            bxs(a[0]+dx*tc+fox*.9,gr+2.5,a[1]+dz*tc+foz*.9,2.6,.18,1.6,Math.atan2(-dz,dx),accC);}
+          var nb=Math.min(4,Math.floor((top-gr)/(fh*2.2)));
+          for(var bi=1;bi<=nb;bi++){var yb=gr+bi*fh*2.2;fq(wp(.02,yb,.1),wp(.98,yb,.1),wp(.98,yb+.35,.1),wp(.02,yb+.35,.1),fox,foz,coC);}
+        }else if(typ===0&&L>5&&Math.random()<.5){
+          var td=.3+Math.random()*.4;
+          fq(wp(td,gr,.12),wp(td+1.1/L,gr,.12),wp(td+1.1/L,gr+2.1,.12),wp(td,gr+2.1,.12),fox,foz,drC);
+          bxs(a[0]+dx*(td+.55/L)+fox*.7,gr+2.2,a[1]+dz*(td+.55/L)+foz*.7,1.8,.14,1.2,Math.atan2(-dz,dx),0x7a3a2a);
+        }else if(typ===2&&L>12){
+          var tg=.25+Math.random()*.5;fq(wp(tg,gr,.12),wp(tg+5/L,gr,.12),wp(tg+5/L,gr+3.8,.12),wp(tg,gr+3.8,.12),fox,foz,0x4d5a63);
+          fq(wp(0,gr+h*.6,.12),wp(1,gr+h*.6,.12),wp(1,gr+h*.6+.8,.12),wp(0,gr+h*.6+.8,.12),fox,foz,accC);
+        }
       }
       // navátý písek na návětrné straně
       var mx2=(a[0]+c[0])/2-cx,mz2=(a[1]+c[1])/2-cz,ox=nx,oz=nz;if(mx2*ox+mz2*oz<0){ox=-ox;oz=-oz;}
@@ -1959,7 +1993,7 @@ function buildBuildings(){
       }
       if(DET&&Math.random()<.55){var kx=cx+(p[0][0]-cx)*.42,kz=cz+(p[0][1]-cz)*.42;bxs(kx,top+rh*.58+.5,kz,.7,1.8,.7,0,0x8a6a58);bxs(kx,top+rh*.58+1.5,kz,.9,.18,.9,0,0x4a4440);}
     }else{
-      rc.setHex(typ===1?0x9d9a92:(typ===2?0x7e7d78:(typ===3?0x6e6a64:0x8a857c)));rc.multiplyScalar(.9+Math.random()*.15);rc.lerp(SANDB,Math.random()*.55);
+      rc.setHex(typ===1?0x6f6b66:(typ===2?0x7e7d78:(typ===3?0x6e6a64:0x8a857c)));rc.multiplyScalar(.9+Math.random()*.15);rc.lerp(SANDB,Math.random()*.55);
       var v=p.map(function(q){return new THREE.Vector2(q[0],q[1]);});
       var tris;try{tris=THREE.ShapeUtils.triangulateShape(v,[]);}catch(e){tris=[];}
       tris.forEach(function(t){
@@ -1972,11 +2006,11 @@ function buildBuildings(){
       if(DET&&(typ===1||typ===2)){
         var nr=typ===1?5:7,sq=Math.sqrt(area)*.34;
         for(var rk=0;rk<nr;rk++){var rx=cx+(Math.random()-.5)*sq*2,rz=cz+(Math.random()-.5)*sq*2;if(!pip(rx,rz,p))continue;var rt=Math.random();
-          if(rt<.3)bxs(rx,top+.6,rz,1.8,1.1,1.8,Math.random()*3,0x8a8d90);
-          else if(rt<.5)bxs(rx,top+1.2,rz,2.4,2.4,2.4,Math.random()*3,0x6a665e);
+          if(rt<.3)bxs(rx,top+.7,rz,2.4,1.4,2.4,Math.random()*3,0xb4b8bb);
+          else if(rt<.5){bxs(rx,top+1.3,rz,3,2.6,3,Math.random()*3,0xd2cdbf);bxs(rx,top+1.3,rz,3.05,.5,3.05,0,0x8a8680);}
           else if(rt<.75){bxs(rx,top+2,rz,.1,4,.1,0,0x3a3a3a);bxs(rx,top+3.6,rz,1.6,.1,.1,Math.random()*3,0x3a3a3a);}
           else{bxs(rx,top+.4,rz,.15,.8,.15,0,0x555);var dg=Math.random()*6;bxs(rx,top+1.1,rz,1.1,.08,1.1,dg,0xe8e8e8);}}
-        if(typ===1&&rk>0)bxs(cx,top+1.3,cz,3.4,2.6,3.4,0,0xa09a8c);
+        if(typ===1&&rk>0){bxs(cx,top+1.4,cz,4,2.8,4,0,0xcfc8b6);bxs(cx,top+2.9,cz,4.4,.3,4.4,0,0x6a6560);}
       }
       if(typ===1||typ===2){ // atika
         for(i=0;i<n;i++){var a4=p[i],c4=p[(i+1)%n],dx4=c4[0]-a4[0],dz4=c4[1]-a4[1],L4=Math.hypot(dx4,dz4);if(L4<.05)continue;
@@ -3153,7 +3187,7 @@ function update(dt){
 
 // ---------- kamera ----------
 var shadowsOn=true;
-function pitchOf(d){return .44+.56*cl((d-40)/1600,0,1);}
+function pitchOf(d){return .52+.5*cl((d-40)/1600,0,1);}
 function updateCam(dt){
   var sp=cam.dist*1.1*dt;
   var fx2=-Math.sin(cam.yaw),fz2=-Math.cos(cam.yaw),rx=Math.cos(cam.yaw),rz=-Math.sin(cam.yaw);
@@ -3825,7 +3859,7 @@ var introHTML=null;
 var DAYLEN=1500,WX={k:0,target:0,next:170,left:0,wx:.8,wz:.35};
 var SKC={dH:new THREE.Color(0xeec597),dZ:new THREE.Color(0x93a4ae),sH:new THREE.Color(0xe88c55),sZ:new THREE.Color(0x5a4a6a),nH:new THREE.Color(0x2a2236),nZ:new THREE.Color(0x0c0a16),st:new THREE.Color(0xc0905a)};
 var SUNC={d:new THREE.Color(0xffd29a),s:new THREE.Color(0xff9048),n:new THREE.Color(0x9c90d0)};
-var HEMS={d:new THREE.Color(0xf2e2c6),n:new THREE.Color(0x6e6488)},HEMG={d:new THREE.Color(0x9a7448),n:new THREE.Color(0x3a3044)};
+var HEMS={d:new THREE.Color(0xf2e2c6),n:new THREE.Color(0x6e6488)},HEMG={d:new THREE.Color(0xb59d7e),n:new THREE.Color(0x3a3044)};
 var _ca=new THREE.Color(),_cb=new THREE.Color(),TOD=.3;
 function sstep(a,b,x){var t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);}
 function weatherReset(){WX.k=0;WX.target=0;WX.next=mission===3?45:150+Math.random()*80;WX.left=0;}
