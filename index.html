@@ -1313,7 +1313,7 @@ scene.fog=new THREE.Fog(SKY,2000,6000);
 var camera=new THREE.PerspectiveCamera(48,1,1,14000);
 var hemi=new THREE.HemisphereLight(0xdfe8f2,0x8a6b46,0.52);scene.add(hemi);
 var sun=new THREE.DirectionalLight(0xffd7a0,1.05);
-sun.castShadow=true;sun.shadow.mapSize.set(LOWQ?1024:2048,LOWQ?1024:2048);sun.shadow.bias=-0.0004;sun.shadow.normalBias=0.6;
+sun.castShadow=true;sun.shadow.mapSize.set(LOWQ?1024:2048,LOWQ?1024:2048);sun.shadow.bias=-0.0012;sun.shadow.normalBias=1.4;
 scene.add(sun);scene.add(sun.target);
 var SUNDIR=new THREE.Vector3(-0.62,0.50,0.46).normalize();
 // ================= atmosféra: nebe, částice, otisky, prach, postprocessing =================
@@ -1406,6 +1406,7 @@ function boom(x,z,y,size,col){
   var nD=Math.min(8,2+(s*.5|0));
   for(i=0;i<nD;i++){a=Math.random()*6.28;sp=s*(.6+Math.random()*.9);
     SMK.add(x,H(x,z)+.8,z,Math.cos(a)*sp,.5+Math.random(),Math.sin(a)*sp,1.3+Math.random()*.9,s*.7,s*2.8,.4,.78,.66,.5,.7,.6,.46,0,1.8);}
+  if(s>=3){var nCh=Math.min(10,(s*1.2)|0);for(i=0;i<nCh;i++){a=Math.random()*6.28;sp=7+Math.random()*13;SMK.add(x,gy+1,z,Math.cos(a)*sp,sp*(.7+Math.random()*.8),Math.sin(a)*sp,1.1+Math.random()*.8,.55,.4,.98,.10,.09,.08,.14,.12,.10,22,.15);}}
   if(s>=2.2)addDecal(x,z,s*(.9+Math.random()*.5)+1.5);
   if(visNow(x,z)||cam.dist<2000){flashLight(x,gy+3,z,0xff8a3a,Math.min(6,1.5+s*.5),s*9+12,.45);if(s>=2.4)shockwave(x,z,s);if(s>=6&&Math.hypot(x-cam.x,z-cam.z)<cam.dist*1.2)shake=Math.max(shake,Math.min(.1,s/90));}
 }
@@ -1475,7 +1476,7 @@ var GRADE={uniforms:{tDiffuse:{value:null},uExp:{value:1.0},uVig:{value:1.2},uT:
     '  for(int i=0;i<28;i++){p+=d;vec3 sm=texture2D(tDiffuse,clamp(p,0.001,0.999)).rgb;acc+=sm*max(dot(sm,vec3(0.333))-0.6,0.0)*w;w*=0.94;}',
     '  c+=acc*uRay*0.11*vec3(1.0,0.78,0.48);}',
     ' c*=uExp;c=aces(c);float l=dot(c,vec3(0.299,0.587,0.114));',
-    ' c=mix(vec3(l),c,1.18);c=mix(c*vec3(0.98,0.95,0.97),c*vec3(1.08,1.0,0.86),smoothstep(0.12,0.8,l));',
+    ' c=mix(vec3(l),c,1.34);c=mix(c*vec3(0.88,0.98,1.08),c*vec3(1.12,1.0,0.82),smoothstep(0.10,0.75,l));c=c*c*(3.0-2.0*c)*0.2+c*0.8;',
     ' c=mix(c,c*vec3(1.05,0.97,0.86),0.35);',
     ' vec2 q=vUv-0.5;c*=1.0-dot(q,q)*uVig;c=mix(c,c*vec3(1.0,0.86,0.7),clamp(dot(q,q)*1.3,0.0,0.4));',
     ' c+=(hash(vUv*vec2(1731.0,977.0)+uT)-0.5)*0.014;gl_FragColor=vec4(c,1.0);}'].join('\n')};
@@ -1495,7 +1496,7 @@ function initPost(){
     rt.samples=4;
     composer=new THREE.EffectComposer(renderer,rt);composer.setPixelRatio(pr);composer.setSize(w,h);
     composer.addPass(new THREE.RenderPass(scene,camera));
-    bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(w,h),.55,.6,1.1);composer.addPass(bloomPass);
+    bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(w,h),.78,.7,.9);composer.addPass(bloomPass);
     gradePass=new THREE.ShaderPass(GRADE);gradePass.renderToScreen=true;composer.addPass(gradePass);
   }catch(err){composer=null;postOn=false;if(window.console)console.warn('postprocessing off',err);}
 }
@@ -1898,6 +1899,17 @@ function buildBuildings(){
     U.push(ua[0],ua[1],ub[0],ub[1],uc[0],uc[1]);
   }
   var ZU=[.04,.04];
+  function bxs(cx,cy,cz,sx,sy,sz,ry,cc){
+    cc=new THREE.Color(cc);
+    var c=Math.cos(ry),s=Math.sin(ry),hx=sx/2,hy=sy/2,hz=sz/2,V=[];
+    for(var iy=-1;iy<=1;iy+=2)for(var iz=-1;iz<=1;iz+=2)for(var ix=-1;ix<=1;ix+=2){var lx=ix*hx,lz=iz*hz;V.push([cx+lx*c+lz*s,cy+iy*hy,cz-lx*s+lz*c]);}
+    // V index = (iy+1)/2*4+(iz+1)/2*2+(ix+1)/2
+    function q(a,b,c2,d,nx,ny,nz){tri(V[a],V[b],V[c2],nx,ny,nz,cc,ZU,ZU,ZU);tri(V[a],V[c2],V[d],nx,ny,nz,cc,ZU,ZU,ZU);}
+    q(4,5,7,6,0,1,0);q(0,2,3,1,0,-1,0);
+    q(2,3,7,6,s,0,c);q(0,4,5,1,-s,0,-c);
+    q(1,3,7,5,c,0,-s);q(0,4,6,2,-c,0,s);
+  }
+  var DET=!LOWQ;
   MAPD.b.forEach(function(b){
     var typ=b[0],h=b[1],p=pts(b[2],.5),n=p.length;if(n<3)return;
     var mn=1e9,mx=-1e9,i;
@@ -1916,6 +1928,13 @@ function buildBuildings(){
       aoc.copy(col).multiplyScalar(.6).lerp(SANDB,.18);
       if(win){tri(A,B,Ct,nx,0,nz,[aoc,aoc,col],[0,v0],[u1,v0],[u1,v1]);tri(A,Ct,D,nx,0,nz,[aoc,col,col],[0,v0],[u1,v1],[0,v1]);}
       else{tri(A,B,Ct,nx,0,nz,[aoc,aoc,col],ZU,ZU,ZU);tri(A,Ct,D,nx,0,nz,[aoc,col,col],ZU,ZU,ZU);}
+      if(DET&&typ===1&&L>9&&h>7&&((i+((cx*7)|0))&1)){
+        var bmx=(a[0]+c[0])/2,bmz=(a[1]+c[1])/2,bo=nx,bz=nz;if((bmx-cx)*bo+(bmz-cz)*bz<0){bo=-bo;bz=-bz;}
+        var bry=Math.atan2(-dz,dx),nfl=Math.min(9,Math.floor((top-gr)/fh));
+        for(var fl=1;fl<nfl;fl++){var by=gr+fl*fh+.5;
+          bxs(bmx+bo*.55,by,bmz+bz*.55,L*.5,.16,1.1,bry,0xcfc9bb);bxs(bmx+bo*1.05,by+.55,bmz+bz*1.05,L*.5,1.0,.07,bry,0x8e8a80);}
+        bxs(bmx+bo*.5,gr+1.1,bmz+bz*.5,3.4,.25,1.3,bry,0x4a4640);
+      }
       // navátý písek na návětrné straně
       var mx2=(a[0]+c[0])/2-cx,mz2=(a[1]+c[1])/2-cz,ox=nx,oz=nz;if(mx2*ox+mz2*oz<0){ox=-ox;oz=-oz;}
       if(L>2.5&&ox*WDX+oz*WDZ>.3&&Math.random()<.85){
@@ -1938,6 +1957,7 @@ function buildBuildings(){
         if(nny<0){nnx=-nnx;nny=-nny;nnz=-nnz;}
         tri([a2[0],top,a2[1]],T,[c2[0],top,c2[1]],nnx/nl,nny/nl,nnz/nl,rc,ZU,ZU,ZU);
       }
+      if(DET&&Math.random()<.55){var kx=cx+(p[0][0]-cx)*.42,kz=cz+(p[0][1]-cz)*.42;bxs(kx,top+rh*.58+.5,kz,.7,1.8,.7,0,0x8a6a58);bxs(kx,top+rh*.58+1.5,kz,.9,.18,.9,0,0x4a4440);}
     }else{
       rc.setHex(typ===1?0x9d9a92:(typ===2?0x7e7d78:(typ===3?0x6e6a64:0x8a857c)));rc.multiplyScalar(.9+Math.random()*.15);rc.lerp(SANDB,Math.random()*.55);
       var v=p.map(function(q){return new THREE.Vector2(q[0],q[1]);});
@@ -1949,6 +1969,15 @@ function buildBuildings(){
         if(cr>0)tri([a3.x,top,a3.y],[c3.x,top,c3.y],[b3.x,top,b3.y],0,1,0,rc,ZU,ZU,ZU);
         else tri([a3.x,top,a3.y],[b3.x,top,b3.y],[c3.x,top,c3.y],0,1,0,rc,ZU,ZU,ZU);
       });
+      if(DET&&(typ===1||typ===2)){
+        var nr=typ===1?5:7,sq=Math.sqrt(area)*.34;
+        for(var rk=0;rk<nr;rk++){var rx=cx+(Math.random()-.5)*sq*2,rz=cz+(Math.random()-.5)*sq*2;if(!pip(rx,rz,p))continue;var rt=Math.random();
+          if(rt<.3)bxs(rx,top+.6,rz,1.8,1.1,1.8,Math.random()*3,0x8a8d90);
+          else if(rt<.5)bxs(rx,top+1.2,rz,2.4,2.4,2.4,Math.random()*3,0x6a665e);
+          else if(rt<.75){bxs(rx,top+2,rz,.1,4,.1,0,0x3a3a3a);bxs(rx,top+3.6,rz,1.6,.1,.1,Math.random()*3,0x3a3a3a);}
+          else{bxs(rx,top+.4,rz,.15,.8,.15,0,0x555);var dg=Math.random()*6;bxs(rx,top+1.1,rz,1.1,.08,1.1,dg,0xe8e8e8);}}
+        if(typ===1&&rk>0)bxs(cx,top+1.3,cz,3.4,2.6,3.4,0,0xa09a8c);
+      }
       if(typ===1||typ===2){ // atika
         for(i=0;i<n;i++){var a4=p[i],c4=p[(i+1)%n],dx4=c4[0]-a4[0],dz4=c4[1]-a4[1],L4=Math.hypot(dx4,dz4);if(L4<.05)continue;
           tri([a4[0],top,a4[1]],[c4[0],top,c4[1]],[c4[0],top+.8,c4[1]],dz4/L4,0,-dx4/L4,col,ZU,ZU,ZU);tri([a4[0],top,a4[1]],[c4[0],top+.8,c4[1]],[a4[0],top+.8,a4[1]],dz4/L4,0,-dx4/L4,col,ZU,ZU,ZU);}
@@ -2703,6 +2732,7 @@ function kill(e){
   var i=selection.indexOf(e);if(i>=0){selection.splice(i,1);refreshPanel();}
   if(e.b){for(var k=0;k<7;k++)boom(e.x+(Math.random()-.5)*e.r*1.4,e.z+(Math.random()-.5)*e.r*1.4,3+Math.random()*8,e.r*.6,0xff7a2a);}
   else boom(e.x,e.z,1.5,e.def.veh?7:2.5,0xffa040);
+  if(!e.b&&(e.team===0||visNow(e.x,e.z)))makeWreck(e);
   if(e.type==='hq')endGame(e.team===1);
 }
 var shots=[],shotGeo=new THREE.SphereGeometry(1,8,6);shotGeo.userData.shared=true;
@@ -3123,7 +3153,7 @@ function update(dt){
 
 // ---------- kamera ----------
 var shadowsOn=true;
-function pitchOf(d){return .52+.5*cl((d-40)/1600,0,1);}
+function pitchOf(d){return .44+.56*cl((d-40)/1600,0,1);}
 function updateCam(dt){
   var sp=cam.dist*1.1*dt;
   var fx2=-Math.sin(cam.yaw),fz2=-Math.cos(cam.yaw),rx=Math.cos(cam.yaw),rz=-Math.sin(cam.yaw);
@@ -3760,7 +3790,7 @@ function newGame(){
   FACT=[menuFac,menuFac==='pra'?'poust':'pra'];mission=+$('mis').value||0;missionT=0;airHold=0;wormK=mission===3?.45:1;GRP={};weatherReset();time=0;
   ents.forEach(function(e){scene.remove(e.mesh);if(e.b)markDyn(e,-1);});
   fields.forEach(function(f){scene.remove(f.mesh);});
-  fx.forEach(function(f){scene.remove(f.o);});FIR.clear();SMK.clear();clearDecals();
+  fx.forEach(function(f){scene.remove(f.o);});FIR.clear();SMK.clear();clearDecals();wrecksClear();
   shots.forEach(function(s){scene.remove(s.m);});shots=[];
   ents=[];fields=[];fx=[];selection=[];pathQ=[];cancelPlace();
   worm.on=false;worm.warn=0;worm.grp.visible=false;worm.ring.visible=false;
@@ -3817,8 +3847,8 @@ function envFrame(rdt){
   _ca.copy(SKC.nZ).lerp(SKC.dZ,day).lerp(SKC.sZ,dusk*.6).lerp(SKC.st,k*.7);SKYZ.copy(_ca);
   scene.background.copy(SKYH);scene.fog.color.copy(SKYH);
   _ca.copy(SUNC.n).lerp(SUNC.d,day).lerp(SUNC.s,dusk*.7);sun.color.copy(_ca);
-  sun.intensity=(.26+.79*day)*(1-.55*k);
-  hemi.color.copy(HEMS.n).lerp(HEMS.d,day);hemi.groundColor.copy(HEMG.n).lerp(HEMG.d,day);hemi.intensity=.30+.22*day;
+  sun.intensity=(.26+1.02*day)*(1-.55*k);
+  hemi.color.copy(HEMS.n).lerp(HEMS.d,day);hemi.groundColor.copy(HEMG.n).lerp(HEMG.d,day);hemi.intensity=.26+.17*day;
   NIGHTU.value=1-sstep(-.12,.10,el);HZ.el=el;HZ.haze=day*sstep(.25,.7,el)*(1-k);HZ.ray=Math.max(k*.9,dusk*.45)*Math.max(.25,day);
   // prach bouře
   if(k>.04&&state==='play'){
@@ -4034,7 +4064,7 @@ function frame(now){
       placing.ghost.material.color.setHex(placing.ok?0x3de6d3:0xff5a4a);
     }
   }
-  visFrame(rdt);flushBuildings();flushTrees();fxFrame();auFrame(rdt);
+  visFrame(rdt);landmarksFrame(rdt);flushBuildings();flushTrees();fxFrame();auFrame(rdt);
   renderFrame();
   drawOverlay();
   miniT+=rdt;if(miniT>.15){miniT=0;drawMini();}
@@ -4250,13 +4280,196 @@ function visFrame(rdt){
   }
 }
 
+// ================= VIZUÁL v5: C&C3 look (krystaly, vraky, kouř, rim) + Modřany landmarky =================
+// ---------- rim světlo na jednotkách ----------
+(function(){
+  UMAT.onBeforeCompile=function(sh){
+    sh.fragmentShader=sh.fragmentShader.replace('#include <tonemapping_fragment>','float rimf=pow(1.0-clamp(dot(normalize(vViewPosition),normal),0.0,1.0),2.6);gl_FragColor.rgb+=rimf*vec3(1.0,0.74,0.42)*0.30;\n#include <tonemapping_fragment>');
+  };
+  UMAT.roughness=.5;UMAT.metalness=.26;UMAT.needsUpdate=true;
+})();
+// ---------- cukr jako zářící krystaly ----------
+var CRYM=new THREE.MeshStandardMaterial({color:0xcfefff,emissive:0x4fd8ff,emissiveIntensity:1.1,roughness:.25,metalness:.2,flatShading:true});
+var CRYM2=new THREE.MeshStandardMaterial({color:0xfff6e0,emissive:0xffd89a,emissiveIntensity:.8,roughness:.3,metalness:.2,flatShading:true});
+var GLOWTEX=(function(){var c=document.createElement('canvas');c.width=c.height=128;var g=c.getContext('2d'),gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(120,225,255,.85)');gr.addColorStop(.35,'rgba(70,190,255,.30)');gr.addColorStop(1,'rgba(40,150,255,0)');g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);})();
+var GLOWM=new THREE.MeshBasicMaterial({map:GLOWTEX,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.9,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+var CRYG=new THREE.CylinderGeometry(0,1,1,5);CRYG.translate(0,.5,0);
+var CRYG2=new THREE.CylinderGeometry(.55,1,1,5);CRYG2.translate(0,.5,0);
+function makeField(x,z,amt){
+  var g=new THREE.Group(),i,gy=H(x,z);
+  var disc=new THREE.Mesh(new THREE.CircleGeometry(30,32),GLOWM);disc.rotation.x=-Math.PI/2;disc.position.y=.7;g.add(disc);
+  for(i=0;i<46;i++){
+    var a=Math.random()*6.28,rr=Math.pow(Math.random(),.7)*21,px=x+Math.cos(a)*rr,pz=z+Math.sin(a)*rr;
+    var big=rr<9&&Math.random()<.5,hh=(big?4+Math.random()*7:1.1+Math.random()*3.2),w=hh*(.16+Math.random()*.12);
+    var o=new THREE.Mesh(Math.random()<.55?CRYG:CRYG2,i%5===0?CRYM2:CRYM);
+    o.scale.set(w,hh,w);o.position.set(Math.cos(a)*rr,H(px,pz)-gy-.3,Math.sin(a)*rr);o.rotation.set((Math.random()-.5)*.55,Math.random()*3,(Math.random()-.5)*.55);o.castShadow=true;g.add(o);
+  }
+  g.position.set(x,gy,z);scene.add(g);
+  fields.push({x:x,z:z,r:22,amt:amt,max:amt,mesh:g,last:-1,sp:0});
+}
+// ---------- vraky a kouřící poškozené jednotky ----------
+var WRECKM=new THREE.MeshLambertMaterial({color:0x1d1b19}),WRECKS=[];
+function makeWreck(e){
+  if(!e.def.veh||e.def.air||e.type==='hq')return;
+  var g=modelOf(e.type,e.team);g.traverse(function(o){if(o.isMesh)o.material=o.material===GMAT?WRECKM:WRECKM;});
+  g.position.set(e.x,H(e.x,e.z)-.2,e.z);g.rotation.set((Math.random()-.5)*.18,e.mesh.rotation.y,(Math.random()-.5)*.2);g.scale.setScalar(e.type==='htank'?1.22:1);
+  if(g.userData.head)g.userData.head.rotation.y+=(Math.random()-.5)*1.6;
+  scene.add(g);if(WRECKS.length>26){var o=WRECKS.shift();scene.remove(o.m);}
+  WRECKS.push({m:g,x:e.x,z:e.z,t:0,life:50+Math.random()*30,e:e});
+}
+function wrecksClear(){WRECKS.forEach(function(w){scene.remove(w.m);});WRECKS=[];}
+function wrecksUpdate(dt){
+  for(var i=WRECKS.length-1;i>=0;i--){
+    var w=WRECKS[i];w.t+=dt;if(w.t>w.life){scene.remove(w.m);WRECKS.splice(i,1);continue;}
+    w.k=(w.k||0)-dt;
+    if(w.k<=0&&visNow(w.x,w.z)){
+      w.k=.14+Math.random()*.1;var f=1-w.t/w.life,gy=H(w.x,w.z)+2;
+      SMK.add(w.x+rnd(2),gy,w.z+rnd(2),rnd(1.2),3+Math.random()*2,rnd(1.2),2.6,1.2,5.5,.34*f+.08,.10,.09,.08,.30,.28,.26,-.6,.6);
+      if(w.t<24&&Math.random()<.7)FIR.add(w.x+rnd(2),gy-.5,w.z+rnd(2),rnd(.5),2+Math.random()*3,rnd(.5),.5,1.4,.4,.8,2.2,1.2,.4,.5,.08,.02,-4,1);
+    }
+  }
+}
+function damageSmoke(rdt){
+  var vc=0;
+  for(var i=0;i<ents.length;i++){
+    var e=ents[i];if(e.dead||e.hp>=e.maxhp*.45||e.prog<1&&e.b||!shownP(e))continue;
+    e.sm=(e.sm||0)-rdt;if(e.sm>0)continue;
+    var sev=1-e.hp/(e.maxhp*.45);e.sm=.2+(1-sev)*.3+Math.random()*.1;
+    var gy=eH(e)+(e.b?e.r*.5+3:2);
+    SMK.add(e.x+rnd(e.r),gy,e.z+rnd(e.r),rnd(1),3+Math.random()*2,rnd(1),2.4,e.b?2:1,e.b?8:4,.3+.2*sev,.12,.11,.10,.32,.30,.28,-.5,.6);
+    if(sev>.45)FIR.add(e.x+rnd(e.r*.8),gy-1,e.z+rnd(e.r*.8),rnd(.4),2+Math.random()*3,rnd(.4),.55,e.b?2.2:1.1,.4,.85,2.4,1.3,.45,.5,.08,.02,-4,1);
+    if(++vc>40)break;
+  }
+}
+// ---------- Modřany: pomocný stavitel ----------
+function LB(){this.l=[];}
+LB.prototype.box=function(w,h,d,x,y,z,c,ry,rz){var g=new THREE.BoxGeometry(w,h,d);if(rz)g.rotateZ(rz);if(ry)g.rotateY(ry);g.translate(x,y,z);this.l.push({g:g,c:c});return this;};
+LB.prototype.cyl=function(rt,rb,h,x,y,z,c,seg){var g=new THREE.CylinderGeometry(rt,rb,h,seg||10);g.translate(x,y+h/2,z);this.l.push({g:g,c:c});return this;};
+LB.prototype.cone=function(r,h,x,y,z,c,seg){var g=new THREE.ConeGeometry(r,h,seg||4);g.translate(x,y+h/2,z);if((seg||4)===4)g.rotateY(Math.PI/4);this.l.push({g:g,c:c});return this;};
+LB.prototype.sph=function(r,x,y,z,c){var g=new THREE.SphereGeometry(r,10,8);g.translate(x,y,z);this.l.push({g:g,c:c});return this;};
+LB.prototype.mesh=function(wx){var m=new THREE.Mesh(mergeGeos(this.l,wx),fogPatch(new THREE.MeshLambertMaterial({vertexColors:true})));m.castShadow=true;m.receiveShadow=true;return m;};
+function freeSpot(x,z,r,maxR){
+  for(var rr=0;rr<=maxR;rr+=6)for(var k=0;k<(rr?10:1);k++){var a=k*.628+rr*.3,px=x+Math.cos(a)*rr,pz=z+Math.sin(a)*rr;
+    var ok=true;for(var q=0;q<8&&ok;q++){var c=navCell(px+Math.cos(q*.785)*r,pz+Math.sin(q*.785)*r);if(c<0||(NAVF[c]&(1|2|4)))ok=false;}
+    if(ok)return [px,pz];}
+  return null;
+}
+function nearestBld(x,z,maxD,minA){
+  var best=null,bd=1e9;
+  for(var i=0;i<BINFO.length;i++){var b=BINFO[i];if(b.area<minA)continue;var d=Math.hypot(b.x-x,b.z-z);if(d<maxD&&d<bd){bd=d;best=b;}}
+  return best;
+}
+var LMK=[],LMBLINK=[],LMSIGN=[];
+function onRoof(b,fn){ // přídavek na střeše budovy – zmizí s budovou
+  var lb=new LB();fn(lb,b);var m=lb.mesh();m.position.set(b.x,b.top,b.z);scene.add(m);LMK.push({m:m,b:b,y:b.top});return m;
+}
+function signTex(txt,col,bg){
+  var c=document.createElement('canvas');c.width=512;c.height=128;var g=c.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,512,128);g.strokeStyle=col;g.lineWidth=6;g.strokeRect(6,6,500,116);
+  g.fillStyle=col;g.font='800 64px "PPOrb",system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,256,68);return new THREE.CanvasTexture(c);
+}
+var GLOWMATS=[];
+function emissiveMat(col){var m=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.3});GLOWMATS.push(m);return m;}
+function landmarksInit(){
+  var i,b,sp;
+  // --- Modřanský cukrovar: komín + sila + nádrže ---
+  b=nearestBld(-1302,-1259,160,300);
+  var cx=b?b.x:-1302,cz=b?b.z:-1259;
+  sp=freeSpot(cx+36,cz-20,10,60)||[cx+40,cz];
+  var lb=new LB(),gy=H(sp[0],sp[1]);
+  for(i=0;i<12;i++)lb.cyl(2.6-i*.1,2.8-i*.1,5.6,0,-2+i*5.2,0,i%2?0xe8e2d4:0xb5472f,12);
+  lb.cyl(3.3,2.6,1.4,0,-2+12*5.2,0,0x3d3a36,12);
+  var cm=lb.mesh();cm.position.set(sp[0],gy,sp[1]);scene.add(cm);
+  var lamp=new THREE.Mesh(new THREE.SphereGeometry(.9,8,6),emissiveMat(0xff3a2a));lamp.position.set(sp[0],gy+61.5,sp[1]);scene.add(lamp);LMBLINK.push(lamp);
+  window.__chim={x:sp[0],y:gy+62,z:sp[1]};
+  var s2=freeSpot(cx-40,cz+30,14,70);
+  if(s2){var l2=new LB(),g2=H(s2[0],s2[1]);for(i=0;i<3;i++){l2.cyl(7,7,26,i*15-15,-2,0,0xd8d4c8,16);l2.cyl(7.3,7.3,1,i*15-15,24,0,0x8a8680,16);l2.cone(7.2,4,i*15-15,25,0,0xa5a29a,16);}
+    l2.box(50,1.2,2.2,0,24,0,0x6e6a63);l2.cyl(1.2,1.2,12,-30,-2,6,0x9a948a,8);
+    var sm=l2.mesh();sm.position.set(s2[0],g2,s2[1]);sm.rotation.y=.4;scene.add(sm);}
+  var s3=freeSpot(cx+10,cz+55,12,60);
+  if(s3){var l3=new LB(),g3=H(s3[0],s3[1]);for(i=0;i<4;i++)l3.cyl(6,6,9,(i%2)*14-7,-1,Math.floor(i/2)*14-7,i%2?0xcdd3d6:0xb9c1c5,14).cone(6.1,2.2,(i%2)*14-7,8,Math.floor(i/2)*14-7,0x8e979c,14);
+    var tm=l3.mesh();tm.position.set(s3[0],g3,s3[1]);scene.add(tm);}
+  // --- kostel Nanebevzetí P. Marie: věž s věží ---
+  b=nearestBld(-1126,-1841,80,60);
+  if(b)onRoof(b,function(l,bb){var r=Math.min(5,bb.r*.4);l.box(r*1.5,12,r*1.5,0,6,0,0xe9e0cc).box(r*1.6,.5,r*1.6,0,12,0,0x8a8070);l.cone(r*1.2,22,0,12,0,0x4b6b63,8);l.cyl(.12,.12,3.4,0,34,0,0xe0b84a,4);l.box(1.4,.18,.18,0,35.4,0,0xe0b84a);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(q){l.cyl(.7,.7,6,q[0]*r*.9,0,q[1]*r*.9,0xe9e0cc,6).cone(.95,3.6,q[0]*r*.9,6,q[1]*r*.9,0x4b6b63,6);});});
+  // --- zvonice ---
+  sp=freeSpot(-1084,-1808,6,40);
+  if(sp){var lz=new LB();lz.box(5.6,17,5.6,0,6.5,0,0xd9cfb8).box(6.4,.6,6.4,0,15,0,0x8a8070).box(4,3.4,4,0,17.5,0,0xcdc2a8).cone(3.6,8,0,19.2,0,0x6b3e2a,4).sph(.9,0,16.8,0,0xb08a2e);
+    [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(q){lz.box(q[0]?.2:1.6,2.6,q[1]?.2:1.6,q[0]*2.85,16.8,q[1]*2.85,0x2a2420);});
+    var zm=lz.mesh();zm.position.set(sp[0],H(sp[0],sp[1])-1,sp[1]);scene.add(zm);}
+  // --- radnice: hodinová věž ---
+  b=nearestBld(-597,-1671,90,80);
+  if(b){onRoof(b,function(l,bb){l.box(5.6,10,5.6,0,5,0,0xe4d8bc).box(6.4,.6,6.4,0,10.2,0,0x8a8070);l.cone(4,9,0,10.5,0,0x4f8a76,4);l.cyl(.1,.1,2.6,0,19.3,0,0xe0b84a,4);
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(q){l.cyl(1.6,1.6,.22,q[0]*2.85,8.2,q[1]*2.85,0xf7f3e6,16);var g=l.l[l.l.length-1].g;g.rotateZ(Math.PI/2);if(q[1])g.rotateY(Math.PI/2);});});}
+  // --- SK Modřany: stožáry osvětlení ---
+  var sc=[-1105,-1127],pitch=null,pa=1e9;
+  MAPD.a.forEach(function(a){if(a[0]!=='pitch')return;var rs=ringsOf(a),bb=bboxR(rs),mx=(bb[0]+bb[2])/2,mz=(bb[1]+bb[3])/2,d=Math.hypot(mx-sc[0],mz-sc[1]);if(d<pa){pa=d;pitch={x:mx,z:mz,w:bb[2]-bb[0],h:bb[3]-bb[1]};}});
+  if(pitch&&pa<200){var ls=new LB(),hw=Math.min(40,pitch.w/2+8),hh=Math.min(30,pitch.h/2+8),gp=H(pitch.x,pitch.z);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(q){var x=q[0]*hw,z=q[1]*hh;ls.cyl(.5,.8,27,x,H(pitch.x+x,pitch.z+z)-gp-1,z,0x7f8286,6).box(5.4,3,.8,x,H(pitch.x+x,pitch.z+z)-gp+27,z,0x3a3d40);});
+    ls.box(pitch.w*.8,5,5,0,2.5,-hh-9,0xcfc9bb).box(pitch.w*.8,.5,6.4,0,5.2,-hh-9,0x8a3a2a);
+    var lm=ls.mesh();lm.position.set(pitch.x,gp,pitch.z);scene.add(lm);
+    var lg=new THREE.Group();[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(q){var x=q[0]*hw,z=q[1]*hh,m=new THREE.Mesh(new THREE.BoxGeometry(4.6,2.4,.3),emissiveMat(0xfff0c0));m.position.set(x,H(pitch.x+x,pitch.z+z)-gp+27,z+(q[1]>0?-.5:.5));lg.add(m);});lg.position.set(pitch.x,gp,pitch.z);scene.add(lg);}
+  // --- OC Vltava: světelná cedule ---
+  b=nearestBld(-1239,-1971,90,300);
+  if(b){var tx=signTex('OC VLTAVA','#fff6e0','#7a2d22'),sg=new THREE.Mesh(new THREE.PlaneGeometry(16,4),new THREE.MeshBasicMaterial({map:tx,side:THREE.DoubleSide,color:0xcccccc}));
+    var pole=new LB();pole.box(.7,24,.7,-6,0,0,0x3a3a3a).box(.7,24,.7,6,0,0,0x3a3a3a);var pm=pole.mesh();pm.position.set(b.x,b.top-1,b.z);scene.add(pm);sg.position.set(b.x,b.top+21,b.z);scene.add(sg);LMSIGN.push(sg);LMK.push({m:pm,b:b,y:b.top});LMK.push({m:sg,b:b,y:b.top+21});}
+  // --- Modřanské strojírny: dva komíny ---
+  b=nearestBld(-539,-509,140,300);
+  if(b)onRoof(b,function(l,bb){for(var k=0;k<2;k++){for(var j=0;j<8;j++)l.cyl(2.1-j*.1,2.3-j*.1,4.6,k*13-6,j*4.4,(k?4:-4),j%2?0xece6d8:0xb5472f,10);}l.box(14,1.2,1.2,0,8,0,0x55524c);});
+  // --- ČHMÚ: radarová kupole ---
+  b=nearestBld(-1124,-104,90,60);
+  if(b)onRoof(b,function(l,bb){l.cyl(.6,.9,14,0,0,0,0xe6e6e6,8).sph(3.2,0,15.5,0,0xf4f4f4);l.cyl(.15,.15,6,2,17,0,0xc03a30,4);});
+  // --- zámek Komořany: nárožní věže ---
+  b=nearestBld(-1318,-99,80,100);
+  if(b){var bb2=bbox(b.p);onRoof(b,function(l){[[bb2[0],bb2[1]],[bb2[2],bb2[1]],[bb2[0],bb2[3]],[bb2[2],bb2[3]]].forEach(function(q){var x=q[0]-b.x,z=q[1]-b.z;l.cyl(2.4,2.6,8,x,-b.h,z,0xe2d6b8,10).cone(3.2,7,x,8-b.h,z,0x8a3a2a,10);});});}
+  // --- pouliční prvky: zaparkovaná auta a zastávky ---
+  parkedInit();
+}
+var PARK=null;
+function parkedInit(){
+  var spots=[],MAX=LOWQ?200:700;
+  MAPD.r.forEach(function(r){if(r[1]===2||r[0]<2||r[0]>4||spots.length>=MAX*3)return;var p=pts(r[2],1),acc=Math.random()*30;
+    for(var i=0;i<p.length-1;i++){var a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<.1)continue;var nx=-(b[1]-a[1])/L,nz=(b[0]-a[0])/L,ang=Math.atan2(b[0]-a[0],b[1]-a[1]);
+      for(;acc<L;acc+=14+Math.random()*34){if(Math.random()<.45)continue;var t=acc/L,o=RW[r[0]]/2+1.1,s=Math.random()<.5?1:-1,x=a[0]+(b[0]-a[0])*t+nx*o*s,z=a[1]+(b[1]-a[1])*t+nz*o*s;
+        if(Math.abs(x)>HALF-10||Math.abs(z)>HALF-10)continue;var c=navCell(x,z);if(c<0||(NAVF[c]&(1|2)))continue;
+        var sc=sectorAt(x,z);spots.push(x,z,ang,sc);}
+      acc-=L;}
+  });
+  var n=Math.min(MAX,spots.length/4|0);if(!n)return;
+  var geo=new THREE.BoxGeometry(1.8,1.2,4.1);geo.translate(0,.85,0);
+  PARK=new THREE.InstancedMesh(geo,fogPatch(new THREE.MeshLambertMaterial({color:0xffffff})),n);
+  var cols=[0xc9c9c9,0x2d2f33,0x8c2b24,0x2c4a78,0xd6d0c0,0x4d5b45,0xb08a2e,0x7a7e82],m4=new THREE.Matrix4(),q=new THREE.Quaternion(),v=new THREE.Vector3(),s=new THREE.Vector3(1,1,1),ay=new THREE.Vector3(0,1,0),col=new THREE.Color();
+  var pick=[];for(var i=0;i<spots.length/4;i++)pick.push(i);for(i=pick.length-1;i>0;i--){var j=(Math.random()*(i+1))|0,t=pick[i];pick[i]=pick[j];pick[j]=t;}
+  for(i=0;i<n;i++){var k=pick[i]*4;q.setFromAxisAngle(ay,spots[k+2]+(Math.random()<.5?0:Math.PI)+(Math.random()-.5)*.08);v.set(spots[k],H(spots[k],spots[k+1]),spots[k+1]);m4.compose(v,q,s);PARK.setMatrixAt(i,m4);col.setHex(cols[(Math.random()*cols.length)|0]);PARK.setColorAt(i,col);}
+  PARK.castShadow=true;PARK.frustumCulled=false;scene.add(PARK);
+}
+var LMT=0,CHT=0;
+function landmarksFrame(rdt){
+  var k;
+  for(k=0;k<GLOWMATS.length;k++)GLOWMATS[k].opacity=.22+.78*NIGHTU.value;
+  for(k=0;k<LMBLINK.length;k++)LMBLINK[k].material.opacity=(.25+.75*NIGHTU.value)*(.4+.6*Math.max(0,Math.sin(anim*2.2)));
+  for(k=0;k<LMSIGN.length;k++)LMSIGN[k].material.color.setScalar(.7+.5*NIGHTU.value);
+  LMT-=rdt;
+  if(LMT<=0){LMT=.4;
+    for(k=LMK.length-1;k>=0;k--){var o=LMK[k];if(o.b.dead&&!o.fall){o.fall=1;}
+      if(o.fall){o.m.position.y-=3.5;o.m.rotation.z+=.04;if(o.m.position.y<o.y-60){scene.remove(o.m);LMK.splice(k,1);}}}
+  }
+  // kouř z komína cukrovaru
+  CHT-=rdt;
+  if(CHT<=0&&window.__chim){CHT=.28;var c=window.__chim;if(visNow(c.x,c.z)||state==='menu')SMK.add(c.x+rnd(1),c.y,c.z+rnd(1),WX.wx*3+rnd(.6),2.4+Math.random(),WX.wz*3+rnd(.6),7,2.2,13,.42,.9,.88,.84,.75,.72,.68,-.15,.25);}
+  // sugar krystaly: pulz + jiskřičky
+  CRYM.emissiveIntensity=.95+.4*Math.sin(anim*1.8);CRYM2.emissiveIntensity=.7+.3*Math.sin(anim*2.3+1);GLOWM.opacity=.75+.2*Math.sin(anim*1.5);
+  for(k=0;k<fields.length;k++){var f=fields[k];if(f.amt<=0||!f.mesh.visible)continue;f.sp-=rdt;if(f.sp<=0&&Math.hypot(f.x-cam.x,f.z-cam.z)<cam.dist*1.6+120){f.sp=.25+Math.random()*.4;var a=Math.random()*6.28,rr=Math.random()*18;FIR.add(f.x+Math.cos(a)*rr,H(f.x,f.z)+2+Math.random()*4,f.z+Math.sin(a)*rr,rnd(.5),1.2+Math.random()*1.5,rnd(.5),1.4,.7,.1,.8,.5,1.6,2.2,.3,.9,1.6,0,1);}}
+  wrecksUpdate(rdt);if(state==='play'&&!paused)damageSmoke(rdt);
+}
+
 function init(data){
   MAPD=data;HALF=data.half;G=data.grid;NG=data.n;
   decodeHeights();carveWater();fogInit();decalInit();
   buildGroundCanvas();buildTerrainMesh();buildWater();carsInit();
   buildNav();NAV0=NAV.slice();NAVF0=NAVF.slice();
   var nb=buildBuildings(),nt=buildTrees();
-  sectorInit();lampsInit();TRK.mesh.material.uniforms.fogTex.value=fogTex;TRK.mesh.material.uniforms.fogHalf.value=HALF;
+  sectorInit();lampsInit();landmarksInit();TRK.mesh.material.uniforms.fogTex.value=fogTex;TRK.mesh.material.uniforms.fogHalf.value=HALF;
   buildMiniBg();introHTML=$('mb').innerHTML;
   newGame();refreshPanel();
   $('go').disabled=false;$('go').textContent='Začít hru';
