@@ -315,7 +315,7 @@ body.touch .hi{font-size:10px}
     <li class="monly"><b>Dotyk:</b> klepnutím vybereš jednotku a dalším klepnutím na mapu jí dáš rozkaz. Podržením prstu dáš útok na cestě. Jedním prstem posouváš mapu, dvěma přibližuješ a otáčíš. Vlevo nahoře jsou tlačítka Armáda (vybere vojáky na obrazovce), Rámeček, Útok, Stavět, Zrušit a Základna. Hraj na šířku.</li>
     <li>Když se země zachvěje a objeví se červený kruh, ujížděj. Vozidla červovi utečou, pěchota ne.</li>
   </ul>
-  <div class="src">Mapová data © přispěvatelé OpenStreetMap (ODbL) · výškopis Mapzen Terrain Tiles</div>
+  <div class="src">Mapová data © přispěvatelé OpenStreetMap (ODbL) · výškopis DMR 5G © ČÚZK (CC BY 4.0)</div>
   </div>
   <div id="mbtns"><div id="opts"><div class="optl">Frakce</div><div class="facs"><button class="fc on" data-fc="pra"><b>Pražský odboj</b><span>Budovy o 15 % odolnější · Těžký tank</span></button><button class="fc" data-fc="poust"><b>Pouštní klany</b><span>Jednotky o 10 % rychlejší · Pouštní stíhač</span></button></div><div class="optl">Režim</div><select id="mis"><option value="0">Boj o Prahu</option><option value="1">Mise 1 – Obrana Modřan</option><option value="2">Mise 2 – Dobytí letiště</option><option value="3">Mise 3 – Bouřková válka</option></select><div class="optl">Výsek mapy – 4×4 km, se 2 soupeři 6×6 km (jen Boj o Prahu)</div><select id="win"><option value="klasik">Klasický – Modřany a Točná</option><option value="nahodny">Náhodný (vždy s letištěm Točná)</option><option value="zbraslav">Zbraslav a Točná</option><option value="chuchle">Chuchle a Modřany</option><option value="libus">Libuš a Písnice</option><option value="brezany">Dolní Břežany a Točná</option><option value="vlastni" hidden>Z uložené hry</option></select><div class="optl">Soupeři (jen Boj o Prahu)</div><select id="nen"><option value="1">1 soupeř</option><option value="2">2 soupeři – všichni proti všem</option></select></div><button id="go" disabled>Načítám mapu…</button><button id="ng" class="sec" style="display:none">Nová hra</button><button id="sv" class="sec" style="display:none">Uložit</button><button id="ld" class="sec" style="display:none">Načíst</button><div id="diff">Obtížnost: <button class="tb" data-df="easy">Lehká</button> <button class="tb on" data-df="normal">Normální</button> <button class="tb" data-df="hard">Těžká</button></div></div>
 </div></div>
@@ -3980,7 +3980,7 @@ function placeFields(P,E,X){
   var list=[],BS=X?[P,E,X]:[P,E];
   function ok(x,z){return list.every(function(f){return Math.hypot(f[0]-x,f[1]-z)>330;})&&BS.every(function(B){return Math.hypot(x-B[0],z-B[1])>170;});}
   BS.forEach(function(B){var n=0;for(var t=0;t<80&&n<2;t++){var a=Math.random()*6.283,r=220+Math.random()*200,q=findFree(B[0]+Math.cos(a)*r,B[1]+Math.sin(a)*r,26,120);if(areaFree(q[0],q[1],26)&&ok(q[0],q[1])){list.push([q[0],q[1],3200]);n++;}}});
-  for(var t=0;t<500&&list.length<Math.round((X?17:13)*(HALF/2000)*(HALF/2000)*.75);t++){var x=(Math.random()*2-1)*(HALF-160),z=(Math.random()*2-1)*(HALF-160),q=findFree(x,z,26,100);
+  for(var t=0;t<500&&list.length<Math.round((X?17:13)*Math.max(1,(HALF/2000)*(HALF/2000)*.75));t++){var x=(Math.random()*2-1)*(HALF-160),z=(Math.random()*2-1)*(HALF-160),q=findFree(x,z,26,100);
     if(areaFree(q[0],q[1],26)&&ok(q[0],q[1])&&BS.every(function(B){return Math.hypot(q[0]-B[0],q[1]-B[1])>480;}))list.push([q[0],q[1],2600+Math.random()*1200]);}
   list.forEach(function(f){makeField(f[0],f[1],Math.round(f[2]));});
 }
