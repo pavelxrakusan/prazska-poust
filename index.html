@@ -290,7 +290,7 @@ body.touch .hi{font-size:10px}
 <div class="hg2"><div><h3>Kamera</h3><p><kbd>WASD</kbd> / šipky nebo myš u okraje obrazovky – posun<br><kbd>Q</kbd>/<kbd>E</kbd> otáčení · kolečko zoom · <kbd>H</kbd> základna<br><kbd>F</kbd> celá obrazovka · <kbd>Mezerník</kbd> pauza · <kbd>M</kbd> menu<br><kbd>-</kbd>/<kbd>+</kbd> rychlost hry</p>
 <h3>Výběr a skupiny</h3><p>Levé tlačítko / tažení – výběr · dvojklik – všechny stejné jednotky na obrazovce<br><kbd>Tab</kbd> – podskupina podle typu ve výběru<br><kbd>Shift</kbd>+<kbd>0–9</kbd> uloží skupinu · <kbd>0–9</kbd> vyvolá (dvakrát = zacentruje)</p></div>
 <div><h3>Jednotky (akční menu)</h3><p><kbd>C</kbd> přesunout · <kbd>T</kbd> zaútočit · <kbd>G</kbd> stát (drží pozici) · <kbd>X</kbd> zastavit<br>Pravé tlačítko = přesun / útok na cíl, <kbd>Shift</kbd>+pravé = útok na cestě</p>
-<h3>Budovy a výroba</h3><p>Písmeno v rohu tlačítka = klávesa. U stavby se nejdřív ukáže popis, <kbd>Enter</kbd> / tlačítko Stavět / druhý stisk potvrdí.</p>
+<h3>Budovy a výroba</h3><p>Písmeno v rohu tlačítka = klávesa. Klik na budovu (nebo její klávesa) ji rovnou vezme do ruky, popis se ukáže vlevo. Klikem do mapy ji postavíš, pravé tlačítko / <kbd>Esc</kbd> ruší.</p>
 <h3>Raketové silo</h3><p><kbd>G</kbd> atomový úder · <kbd>T</kbd> salva raket · pak klikni na cíl</p>
 <h3>Energie</h3><p>Elektrárna napájí všechny budovy. Při nedostatku se zpomalí výroba, věže i radar. Ubikace a Kasárna zvyšují limit jednotek (začíná se na 10).</p></div></div></div></div>
 <div id="panel">
@@ -302,12 +302,12 @@ body.touch .hi{font-size:10px}
 <div id="tbar"><button class="tbtn" id="tbAll">Armáda</button><button class="tbtn" id="tbBox">Rámeček</button><button class="tbtn" id="tbAtk">Útok</button><button class="tbtn" id="tbBuild">Stavět</button><button class="tbtn" id="tbNone">Zrušit</button><button class="tbtn" id="tbHome">Základna</button></div>
 <div id="modal"><div id="card">
   <h1 id="mt">Pražská poušť</h1>
-  <h2 id="ms">Bitva o jižní Prahu · mapa 4 × 4 km ve skutečném měřítku</h2>
+  <h2 id="ms">Bitva o jižní Prahu · mapa <span class="nkm">4 × 4</span> km ve skutečném měřítku</h2>
   <div id="mb">
   <p>Vltava se scvrkla a z jižní Prahy zbyl vyprahlý písek. Jediná cenná věc je <b>modřanský cukr</b>. Tvoje velitelství a nepřítelovo se při každé hře rozmístí náhodně po Modřanech, Komořanech, Cholupicích a Točné. Uprostřed leží <b>letiště Točná</b> a pod Komořany se ozývá obří červ.</p>
   <ul>
     <li>Mapa je 1 : 1. Každý dům, cesta, les i výškopis jsou skutečné.</li>
-    <li><b>Sektory:</b> mapa je rozdělená na 12 čtvrtí s vlajkou. Postav jednotky k vlajce a zabereš ji. Každý sektor přináší cukr, dohled a v celém sektoru můžeš stavět. Kdo drží aspoň 7 sektorů 3 minuty, vyhrává.</li>
+    <li><b>Sektory:</b> mapa je rozdělená na <span class="nsec">12</span> čtvrtí s vlajkou. Postav jednotky k vlajce a zabereš ji. Každý sektor přináší cukr, dohled a v celém sektoru můžeš stavět. Kdo drží aspoň <span class="nneed">7</span> sektorů 3 minuty, vyhrává.</li>
     <li><b>Letiště Točná:</b> kdo drží jeho sektor, může na něm postavit Heliport a vyrábět bitevní vrtulníky. Proti nim pomůže jen PVO (věž a vůz) a raketometníci.</li>
     <li><b>Mlha války:</b> vidíš jen tam, kam dohlédnou tvoje jednotky, budovy a vlajky.</li>
     <li><b>Budovy města jdou zničit</b> a trosky se dají projet. Tanky lámou stromy.</li>
@@ -317,7 +317,7 @@ body.touch .hi{font-size:10px}
   </ul>
   <div class="src">Mapová data © přispěvatelé OpenStreetMap (ODbL) · výškopis Mapzen Terrain Tiles</div>
   </div>
-  <div id="mbtns"><div id="opts"><div class="optl">Frakce</div><div class="facs"><button class="fc on" data-fc="pra"><b>Pražský odboj</b><span>Budovy o 15 % odolnější · Těžký tank</span></button><button class="fc" data-fc="poust"><b>Pouštní klany</b><span>Jednotky o 10 % rychlejší · Pouštní stíhač</span></button></div><div class="optl">Režim</div><select id="mis"><option value="0">Boj o Prahu</option><option value="1">Mise 1 – Obrana Modřan</option><option value="2">Mise 2 – Dobytí letiště</option><option value="3">Mise 3 – Bouřková válka</option></select><div class="optl">Soupeři (jen Boj o Prahu)</div><select id="nen"><option value="1">1 soupeř</option><option value="2">2 soupeři – všichni proti všem</option></select></div><button id="go" disabled>Načítám mapu…</button><button id="ng" class="sec" style="display:none">Nová hra</button><button id="sv" class="sec" style="display:none">Uložit</button><button id="ld" class="sec" style="display:none">Načíst</button><div id="diff">Obtížnost: <button class="tb" data-df="easy">Lehká</button> <button class="tb on" data-df="normal">Normální</button> <button class="tb" data-df="hard">Těžká</button></div></div>
+  <div id="mbtns"><div id="opts"><div class="optl">Frakce</div><div class="facs"><button class="fc on" data-fc="pra"><b>Pražský odboj</b><span>Budovy o 15 % odolnější · Těžký tank</span></button><button class="fc" data-fc="poust"><b>Pouštní klany</b><span>Jednotky o 10 % rychlejší · Pouštní stíhač</span></button></div><div class="optl">Režim</div><select id="mis"><option value="0">Boj o Prahu</option><option value="1">Mise 1 – Obrana Modřan</option><option value="2">Mise 2 – Dobytí letiště</option><option value="3">Mise 3 – Bouřková válka</option></select><div class="optl">Výsek mapy – 4×4 km, se 2 soupeři 6×6 km (jen Boj o Prahu)</div><select id="win"><option value="klasik">Klasický – Modřany a Točná</option><option value="nahodny">Náhodný (vždy s letištěm Točná)</option><option value="zbraslav">Zbraslav a Točná</option><option value="chuchle">Chuchle a Modřany</option><option value="libus">Libuš a Písnice</option><option value="brezany">Dolní Břežany a Točná</option><option value="vlastni" hidden>Z uložené hry</option></select><div class="optl">Soupeři (jen Boj o Prahu)</div><select id="nen"><option value="1">1 soupeř</option><option value="2">2 soupeři – všichni proti všem</option></select></div><button id="go" disabled>Načítám mapu…</button><button id="ng" class="sec" style="display:none">Nová hra</button><button id="sv" class="sec" style="display:none">Uložit</button><button id="ld" class="sec" style="display:none">Načíst</button><div id="diff">Obtížnost: <button class="tb" data-df="easy">Lehká</button> <button class="tb on" data-df="normal">Normální</button> <button class="tb" data-df="hard">Těžká</button></div></div>
 </div></div>
 
 <div id="obj"></div>
@@ -1740,6 +1740,7 @@ function H(x,z){
   return (HT[k]*(1-fx)+HT[k+1]*fx)*(1-fz)+(HT[k+NG]*(1-fx)+HT[k+NG+1]*fx)*fz;
 }
 function decodeHeights(){
+  if(MAPD.hF){HT=MAPD.hF;return;}
   var bin=atob(MAPD.h),n=bin.length,u8=new Uint8Array(n);
   for(var i=0;i<n;i++)u8[i]=bin.charCodeAt(i);
   var u16=new Uint16Array(u8.buffer);HT=new Float32Array(u16.length);
@@ -2180,7 +2181,7 @@ function buildTrees(){
   var br=[{g:new THREE.CylinderGeometry(.2,.34,7,5).translate(0,3.5,0),c:0xffffff}];
   [[4.2,.7,0],[5.3,-.8,2.1],[6.2,.6,4.0],[3.4,-.55,3.1],[6.8,-.4,1.0]].forEach(function(q){br.push({g:new THREE.CylinderGeometry(.05,.13,3.4,4).translate(0,1.7,0).rotateZ(q[1]).rotateY(q[2]).translate(0,q[0],0),c:0xffffff});});
   var dead=mergeGeos(br);
-  var MAXN=LOWQ?9000:26000;
+  var MAXN=Math.round((LOWQ?9000:26000)*Math.min(2.2,(HALF/2000)*(HALF/2000)));
   var list=[[],[],[]];
   function add(x,z,kind){
     if(Math.abs(x)>HALF-3||Math.abs(z)>HALF-3)return;
@@ -2205,6 +2206,7 @@ function buildTrees(){
   });
   // stromy podél potoků
   MAPD.w.forEach(function(w){var p=pts(w[1],1);for(var i=0;i<p.length-1;i++){var a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);for(var s=0;s<L;s+=9){if(Math.random()<.6){var t=s/L,o=(Math.random()*2-1)*7;add(a[0]+(b[0]-a[0])*t+o,a[1]+(b[1]-a[1])*t+(Math.random()*2-1)*7,1);}}}});
+  list.forEach(function(L){for(var i=L.length/2-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tx=L[i*2],tz=L[i*2+1];L[i*2]=L[j*2];L[i*2+1]=L[j*2+1];L[j*2]=tx;L[j*2+1]=tz;}});
   var m4=new THREE.Matrix4(),q=new THREE.Quaternion(),s=new THREE.Vector3(),p3=new THREE.Vector3(),c=new THREE.Color(),ax=new THREE.Vector3(0,1,0);
   [con,dec,dead].forEach(function(geo,kind){
     var L=list[kind],n=Math.min(L.length/2,MAXN*[.35,.42,.3][kind])|0;
@@ -2295,7 +2297,7 @@ function findPathW(sx,sz,tx,tz,W,veh){
   function hh(i,j){var dx=Math.abs(i-ti),dz=Math.abs(j-tj);return 3*1.3*(Math.max(dx,dz)+.4142*Math.min(dx,dz));}
   heapPush(S,hh(si,sj));
   var best=S,bestH=1e9,exp=0,found=false;
-  while(hsz>0&&exp<320000){
+  while(hsz>0&&exp<400000*(HALF/2000)*(HALF/2000)){
     var cur=heapPop();if(ACLOSED[cur]===stampV)continue;ACLOSED[cur]=stampV;exp++;
     if(cur===T){found=true;break;}
     var ci=cur%NC,cj=(cur/NC)|0,h0=hh(ci,cj);if(h0<bestH){bestH=h0;best=cur;}
@@ -2333,7 +2335,7 @@ var DEF={
   barracks:{b:1,hp:600,r:12,cost:300,name:'Kasárna',bt:10,use:10,pop:5,produces:['soldier','rocket'],sight:170,desc:'Výcvik pěchoty: pěšák a raketometník.'},
   refinery:{b:1,hp:700,r:14,cost:400,name:'Cukrovar',bt:12,produces:['harv'],sight:170,desc:'Sběrači sem vykládají cukr – postav ho blízko pole. Přijede s ním jeden sběrač zdarma.'},
   factory:{b:1,hp:800,r:16,cost:500,name:'Továrna',bt:14,use:25,produces:['scout','tank','htank','raider','arty','aav'],req:'barracks',sight:170,desc:'Výroba vozidel: průzkumný vůz, tank, raketomet, PVO vůz.'},
-  radar:{b:1,hp:400,r:7,cost:350,name:'Radar',bt:9,use:30,sight:700,desc:'Odkryje okolí do 700 m. Odemkne Raketovou věž a Raketomet.'},
+  radar:{b:1,hp:400,r:7,cost:350,name:'Radar',bt:9,use:30,sight:700,produces:['drone'],desc:'Odkryje okolí do 700 m, vypouští průzkumné drony. Odemkne Raketovou věž a Raketomet.'},
   repair:{b:1,hp:450,r:10,cost:300,name:'Opravna',bt:9,use:15,sight:150,heal:10,desc:'Opravuje vozidla do 30 m, pěchotu pomaleji.'},
   mg:{b:1,hp:340,r:4,cost:200,name:'Kulometná věž',bt:6,use:5,wpn:'mg',dmg:6,range:200,cd:.25,sight:240,desc:'Rychlá palba na 200 m, silná proti pěchotě.'},
   rturret:{b:1,hp:380,r:4,cost:300,name:'Raketová věž',bt:8,use:10,wpn:'rocket',dmg:34,range:270,cd:2.6,req:'radar',sight:290,desc:'Rakety na 270 m, silné proti vozidlům.'},
@@ -2349,7 +2351,7 @@ var DEF={
   heli:{hp:170,r:6,speed:28,cost:350,name:'Vrtulník',bt:12,wpn:'hrocket',dmg:22,range:210,cd:1.9,air:1,alt:38,reqAir:1,sight:300,desc:'Bitevní vrtulník. Přelétá domy, ničí tanky. Výroba jen při držení Letiště Točná.'},
   aa:{b:1,hp:360,r:4,cost:250,name:'PVO věž',bt:7,use:10,wpn:'aa',dmg:28,range:340,cd:1.4,sight:340,desc:'Protiletadlová věž, sestřelí vrtulníky na 340 m. Na pozemní cíle nestřílí.'},
   heliport:{b:1,hp:650,r:14,cost:500,name:'Heliport',bt:12,use:25,produces:['heli','drone'],reqAir:1,sight:220,desc:'Výroba vrtulníků a průzkumných dronů. Staví se jen v sektoru Letiště Točná, který držíš.'},
-  drone:{hp:60,r:2.4,speed:38,cost:180,name:'Průzkumný dron',bt:8,air:1,hi:1,alt:95,reqAir:1,sight:450,desc:'Vysoko letící bezpilotní průzkum. Vidí na 450 m, nemá zbraň. Sestřelí ho jen PVO.'},
+  drone:{hp:60,r:2.4,speed:38,cost:180,name:'Průzkumný dron',bt:8,air:1,hi:1,alt:95,sight:450,desc:'Vysoko letící bezpilotní průzkum z Radaru nebo Heliportu. Vidí na 450 m, nemá zbraň. Sestřelí ho jen PVO.'},
   power:{b:1,hp:500,r:11,cost:300,name:'Elektrárna',bt:11,power:100,sight:170,desc:'Vyrábí energii pro všechny budovy. Při nedostatku energie se zpomalí výroba, věže a radar. Základna sama dává 40.'},
   dorm:{b:1,hp:450,r:9,cost:200,name:'Ubikace',bt:8,pop:10,sight:150,desc:'Ubytuje další vojáky – zvyšuje limit jednotek.'},
   silo:{b:1,hp:900,r:16,cost:1800,name:'Raketové silo',bt:40,use:120,req:'radar',req2:'power',sight:260,desc:'Ultimátní zbraň. Atomový úder (poloměr 170 m, nabíjí se 3 min) a salva raket (poloměr 45 m). Nepřítel vidí červený kruh dopadu.'}
@@ -3420,7 +3422,7 @@ function startPlace(type){
   placing={type:type,ghost:ghost,ok:false,x:0,z:0};
   msg('Klikni na prozkoumané volné místo do 350 m od svých budov ('+DEF[type].name+'). Esc / pravé tlačítko = zrušit.',3000);
 }
-function cancelPlace(){if(placing){scene.remove(placing.ghost);placing=null;}}
+function cancelPlace(){if(placing){scene.remove(placing.ghost);placing=null;}if(pendingBuild&&typeof clearPending==='function'){clearPending();refreshPanel();}}
 function tryPlace(sx,sy){
   if(!placing)return;
   var g=groundAt(sx,sy);if(!g)return;
@@ -3849,7 +3851,10 @@ function fogUpdate(instant){
 }
 
 // ---------- sektory čtvrtí ----------
-var SEEDS=[['Staré Modřany',-980,-1760],['Modřany-sídliště',-430,-1320],['Modřanská rokle',560,-1660],['Písnice',1380,-1450],['Modřany-jih',-650,-680],['Komořany',-1150,-80],['Komořanský les',-560,520],['Letiště Točná',268,173],['Cholupice',1450,-150],['Čihadlo',20,1250],['Šance',-850,1600],['Točná',760,1650]];
+var SEEDS=[['Staré Modřany',-980,-1760],['Modřany-sídliště',-430,-1320],['Modřanská rokle',560,-1660],['Písnice',1380,-1450],['Modřany-jih',-650,-680],['Komořany',-1150,-80],['Komořanský les',-560,520],['Letiště Točná',268,173],['Cholupice',1450,-150],['Čihadlo',20,1250],['Šance',-850,1600],['Točná',760,1650],
+ ['Zbraslav',-2094,1257],['Lahovice',-1816,-136],['Radotín-přístav',-2219,-717],['Velká Chuchle',-2702,-2651],['Hodkovičky',-883,-3550],['Kamýk',1104,-3086],
+ ['Jalový Dvůr',2604,-3224],['Libuš',2917,-2104],['Písnice-východ',3150,-650],['Kamínek',3300,2475],['Dolní Břežany',2350,2650],['Lhota',699,3350],
+ ['Hradiště',-1370,2895],['Jarov',-1950,3450],['Lipence',-3400,1450],['Baně',-3150,3400],['Cholupický vrch',1050,-700],['Lipiny',-200,-2700],['Kalibárna',2671,-1140],['Borový rybník',1154,-2333],['Spartak Modřany',146,-1943]];
 var SECT=null,SECTORS=[],AIRS=7,secT=0,holdT=[0,0,0],ownTex,ownData,ownCanvas,NEEDS=7,HOLD=180;
 function sectorAtRaw(x,z){var wx=x+70*Math.sin(z*.0045)+40*Math.sin(x*.011),wz=z+70*Math.sin(x*.004)+40*Math.cos(z*.012),b=0,bd=1e18;for(var i=0;i<SEEDS.length;i++){var dx=wx-SEEDS[i][1],dz=wz-SEEDS[i][2],d=dx*dx+dz*dz;if(d<bd){bd=d;b=i;}}return b;}
 function sectorAt(x,z){var k=fogIdx(x,z);return k<0?-1:SECT[k];}
@@ -3863,6 +3868,9 @@ function drapedRing(x,z,R,w,col,op){
   var m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=3;scene.add(m);return m;
 }
 function sectorInit(){
+  if(!SEEDS.local){SEEDS=SEEDS.map(function(s){return [s[0],s[1]-WOX,s[2]-WOZ];}).filter(function(s){return Math.abs(s[1])<HALF-160&&Math.abs(s[2])<HALF-160;});SEEDS.local=true;}
+  NEEDS=Math.floor(SEEDS.length/2)+1;
+  var km=Math.round(HALF/500);document.querySelectorAll('.nkm').forEach(function(e){e.textContent=km+' × '+km;});document.querySelectorAll('.nsec').forEach(function(e){e.textContent=SEEDS.length;});document.querySelectorAll('.nneed').forEach(function(e){e.textContent=NEEDS;});
   SECT=new Uint8Array(NF*NF);
   for(var j=0;j<NF;j++)for(var i=0;i<NF;i++)SECT[j*NF+i]=sectorAtRaw(i*FC-HALF+FC/2,j*FC-HALF+FC/2);
   ownData=new Uint8Array(NF*NF*4);
@@ -3953,8 +3961,8 @@ function pickBases(){
   for(var t=0;t<900;t++){
     var pts=[];
     for(var k=0;k<need;k++)pts.push([(Math.random()*2-1)*M2,(Math.random()*2-1)*M2]);
-    var minD=need>2?1500:2300,bad=false,i,j;
-    for(i=0;i<need&&!bad;i++){var sa=sectorAt(pts[i][0],pts[i][1]);if(sa===AIRS)bad=true;for(j=0;j<i;j++){if(Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1])<minD||sectorAt(pts[j][0],pts[j][1])===sa)bad=true;}}
+    var minD=need>2?(HALF>2000?2300:1500):2300,maxD=1e9,bad=false,i,j;
+    for(i=0;i<need&&!bad;i++){var sa=sectorAt(pts[i][0],pts[i][1]);if(sa===AIRS)bad=true;for(j=0;j<i;j++){var dij=Math.hypot(pts[i][0]-pts[j][0],pts[i][1]-pts[j][1]);if(dij<minD||dij>maxD||sectorAt(pts[j][0],pts[j][1])===sa)bad=true;}}
     if(bad)continue;
     var fs=pts.map(function(q){return findFree(q[0],q[1],30,140);});
     for(i=0;i<need&&!bad;i++){if(!areaFree(fs[i][0],fs[i][1],30)||sectorAt(fs[i][0],fs[i][1])===AIRS)bad=true;for(j=0;j<i;j++)if(Math.hypot(fs[i][0]-fs[j][0],fs[i][1]-fs[j][1])<minD-100)bad=true;}
@@ -3970,7 +3978,7 @@ function placeFields(P,E,X){
   var list=[],BS=X?[P,E,X]:[P,E];
   function ok(x,z){return list.every(function(f){return Math.hypot(f[0]-x,f[1]-z)>330;})&&BS.every(function(B){return Math.hypot(x-B[0],z-B[1])>170;});}
   BS.forEach(function(B){var n=0;for(var t=0;t<80&&n<2;t++){var a=Math.random()*6.283,r=220+Math.random()*200,q=findFree(B[0]+Math.cos(a)*r,B[1]+Math.sin(a)*r,26,120);if(areaFree(q[0],q[1],26)&&ok(q[0],q[1])){list.push([q[0],q[1],3200]);n++;}}});
-  for(var t=0;t<500&&list.length<(X?17:13);t++){var x=(Math.random()*2-1)*(HALF-160),z=(Math.random()*2-1)*(HALF-160),q=findFree(x,z,26,100);
+  for(var t=0;t<500&&list.length<Math.round((X?17:13)*(HALF/2000)*(HALF/2000)*.75);t++){var x=(Math.random()*2-1)*(HALF-160),z=(Math.random()*2-1)*(HALF-160),q=findFree(x,z,26,100);
     if(areaFree(q[0],q[1],26)&&ok(q[0],q[1])&&BS.every(function(B){return Math.hypot(q[0]-B[0],q[1]-B[1])>480;}))list.push([q[0],q[1],2600+Math.random()*1200]);}
   list.forEach(function(f){makeField(f[0],f[1],Math.round(f[2]));});
 }
@@ -4184,7 +4192,7 @@ function rleEnc(a){var s=[],v=a[0],n=0;for(var i=0;i<a.length;i++){if(a[i]===v&&
 function rleDec(str,out){var p=0;str.split(',').forEach(function(t){var a=t.split(':'),v=+a[0],n=+a[1];for(var i=0;i<n;i++)out[p++]=v;});}
 function hasSave(){try{return !!(localStorage.getItem('pp_save')||localStorage.getItem('pp_auto'));}catch(e){return false;}}
 function snapshot(){
-  var o={v:1,diff:diff,fac:FACT,mission:mission,missionT:missionT,airHold:airHold,credits:credits,time:time,nextWorm:nextWorm,aiT:aiT,aiWave:aiWave,aiw:AIWV,nen:NEN,dead:DEAD,base:BASEP,rally:enemyRally,enr:ENR,holdT:holdT,
+  var o={v:1,diff:diff,fac:FACT,mission:mission,missionT:missionT,airHold:airHold,credits:credits,time:time,nextWorm:nextWorm,aiT:aiT,aiWave:aiWave,aiw:AIWV,nen:NEN,win:[WOX,WOZ,HALF],dead:DEAD,base:BASEP,rally:enemyRally,enr:ENR,holdT:holdT,
     cam:[cam.x,cam.z,cam.dist,cam.yaw],
     sec:SECTORS.map(function(S){return [S.owner,S.cap];}),
     f:fields.map(function(f){return [f.x,f.z,f.max,f.amt];}),
@@ -4201,6 +4209,7 @@ function loadGame(key){
   var raw=null,o;try{raw=localStorage.getItem(key||'pp_save')||localStorage.getItem('pp_auto');}catch(e){}
   if(!raw)return false;
   try{o=JSON.parse(raw);}catch(e){return false;}
+  if(o.win&&!sameWin(o.win)){rebootTo(o.win,{load:key||'pp_save',ws:'vlastni'});return false;}
   diff=o.diff||diff;menuFac=o.fac[0];newGame();
   FACT=o.fac;mission=o.mission||0;missionT=o.missionT||0;airHold=o.airHold||0;wormK=mission===3?.45:1;
   ents.forEach(function(e){scene.remove(e.mesh);if(e.b)markDyn(e,-1);});ents=[];selection=[];
@@ -4232,10 +4241,10 @@ menuBtns();
 function openMenu(){if(state!=='play')return;state='pause';$('mt').textContent='Menu';$('ms').textContent='Hra je pozastavená. Obtížnost platí pro novou hru.';$('mb').innerHTML=introHTML;$('go').textContent='Pokračovat';$('ng').style.display='';$('modal').className='';menuBtns();}
 $('menuBtn').addEventListener('click',openMenu);
 $('go').addEventListener('click',function(){
-  if(state==='menu'||state==='over'){newGame();state='play';$('modal').className='hide';}
+  if(state==='menu'||state==='over'){var ww=wantWin();if(!sameWin(ww)){rebootTo(ww,{auto:1});return;}newGame();state='play';$('modal').className='hide';}
   else if(state==='pause'){state='play';$('modal').className='hide';}
 });
-$('ng').addEventListener('click',function(){newGame();state='play';$('modal').className='hide';});
+$('ng').addEventListener('click',function(){var ww=wantWin();if(!sameWin(ww)){rebootTo(ww,{auto:1});return;}newGame();state='play';$('modal').className='hide';});
 document.querySelectorAll('[data-df]').forEach(function(b){b.addEventListener('click',function(){diff=b.dataset.df;document.querySelectorAll('[data-df]').forEach(function(q){q.className='tb'+(q===b?' on':'');});});});
 
 function resize(){
@@ -4573,8 +4582,8 @@ function emissiveMat(col){var m=new THREE.MeshBasicMaterial({color:col,transpare
 function landmarksInit(){
   var i,b,sp;
   // --- Modřanský cukrovar: komín + sila + nádrže ---
-  b=nearestBld(-1302,-1259,160,300);
-  var cx=b?b.x:-1302,cz=b?b.z:-1259;
+  b=nearestBld(-1302-WOX,-1259-WOZ,160,300);
+  if(b){var cx=b.x,cz=b.z;
   sp=freeSpot(cx+36,cz-20,10,60)||[cx+40,cz];
   var lb=new LB(),gy=H(sp[0],sp[1]);
   for(i=0;i<12;i++)lb.cyl(2.6-i*.1,2.8-i*.1,5.6,0,-2+i*5.2,0,i%2?0xe8e2d4:0xb5472f,12);
@@ -4589,21 +4598,22 @@ function landmarksInit(){
   var s3=freeSpot(cx+10,cz+55,12,60);
   if(s3){var l3=new LB(),g3=H(s3[0],s3[1]);for(i=0;i<4;i++)l3.cyl(6,6,9,(i%2)*14-7,-1,Math.floor(i/2)*14-7,i%2?0xcdd3d6:0xb9c1c5,14).cone(6.1,2.2,(i%2)*14-7,8,Math.floor(i/2)*14-7,0x8e979c,14);
     var tm=l3.mesh();tm.position.set(s3[0],g3,s3[1]);scene.add(tm);}
+  }
   // --- kostel Nanebevzetí P. Marie: věž s věží ---
-  b=nearestBld(-1126,-1841,80,60);
+  b=nearestBld(-1126-WOX,-1841-WOZ,80,60);
   if(b)onRoof(b,function(l,bb){var r=Math.min(5,bb.r*.4);l.box(r*1.5,12,r*1.5,0,6,0,0xe9e0cc).box(r*1.6,.5,r*1.6,0,12,0,0x8a8070);l.cone(r*1.2,22,0,12,0,0x4b6b63,8);l.cyl(.12,.12,3.4,0,34,0,0xe0b84a,4);l.box(1.4,.18,.18,0,35.4,0,0xe0b84a);
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(q){l.cyl(.7,.7,6,q[0]*r*.9,0,q[1]*r*.9,0xe9e0cc,6).cone(.95,3.6,q[0]*r*.9,6,q[1]*r*.9,0x4b6b63,6);});});
   // --- zvonice ---
-  sp=freeSpot(-1084,-1808,6,40);
+  sp=freeSpot(-1084-WOX,-1808-WOZ,6,40);
   if(sp){var lz=new LB();lz.box(5.6,17,5.6,0,6.5,0,0xd9cfb8).box(6.4,.6,6.4,0,15,0,0x8a8070).box(4,3.4,4,0,17.5,0,0xcdc2a8).cone(3.6,8,0,19.2,0,0x6b3e2a,4).sph(.9,0,16.8,0,0xb08a2e);
     [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(q){lz.box(q[0]?.2:1.6,2.6,q[1]?.2:1.6,q[0]*2.85,16.8,q[1]*2.85,0x2a2420);});
     var zm=lz.mesh();zm.position.set(sp[0],H(sp[0],sp[1])-1,sp[1]);scene.add(zm);}
   // --- radnice: hodinová věž ---
-  b=nearestBld(-597,-1671,90,80);
+  b=nearestBld(-597-WOX,-1671-WOZ,90,80);
   if(b){onRoof(b,function(l,bb){l.box(5.6,10,5.6,0,5,0,0xe4d8bc).box(6.4,.6,6.4,0,10.2,0,0x8a8070);l.cone(4,9,0,10.5,0,0x4f8a76,4);l.cyl(.1,.1,2.6,0,19.3,0,0xe0b84a,4);
       [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(q){l.cyl(1.6,1.6,.22,q[0]*2.85,8.2,q[1]*2.85,0xf7f3e6,16);var g=l.l[l.l.length-1].g;g.rotateZ(Math.PI/2);if(q[1])g.rotateY(Math.PI/2);});});}
   // --- SK Modřany: stožáry osvětlení ---
-  var sc=[-1105,-1127],pitch=null,pa=1e9;
+  var sc=[-1105-WOX,-1127-WOZ],pitch=null,pa=1e9;
   MAPD.a.forEach(function(a){if(a[0]!=='pitch')return;var rs=ringsOf(a),bb=bboxR(rs),mx=(bb[0]+bb[2])/2,mz=(bb[1]+bb[3])/2,d=Math.hypot(mx-sc[0],mz-sc[1]);if(d<pa){pa=d;pitch={x:mx,z:mz,w:bb[2]-bb[0],h:bb[3]-bb[1]};}});
   if(pitch&&pa<200){var ls=new LB(),hw=Math.min(40,pitch.w/2+8),hh=Math.min(30,pitch.h/2+8),gp=H(pitch.x,pitch.z);
     [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(q){var x=q[0]*hw,z=q[1]*hh;ls.cyl(.5,.8,27,x,H(pitch.x+x,pitch.z+z)-gp-1,z,0x7f8286,6).box(5.4,3,.8,x,H(pitch.x+x,pitch.z+z)-gp+27,z,0x3a3d40);});
@@ -4611,17 +4621,17 @@ function landmarksInit(){
     var lm=ls.mesh();lm.position.set(pitch.x,gp,pitch.z);scene.add(lm);
     var lg=new THREE.Group();[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(q){var x=q[0]*hw,z=q[1]*hh,m=new THREE.Mesh(new THREE.BoxGeometry(4.6,2.4,.3),emissiveMat(0xfff0c0));m.position.set(x,H(pitch.x+x,pitch.z+z)-gp+27,z+(q[1]>0?-.5:.5));lg.add(m);});lg.position.set(pitch.x,gp,pitch.z);scene.add(lg);}
   // --- OC Vltava: světelná cedule ---
-  b=nearestBld(-1239,-1971,90,300);
+  b=nearestBld(-1239-WOX,-1971-WOZ,90,300);
   if(b){var tx=signTex('OC VLTAVA','#fff6e0','#7a2d22'),sg=new THREE.Mesh(new THREE.PlaneGeometry(16,4),new THREE.MeshBasicMaterial({map:tx,side:THREE.DoubleSide,color:0xcccccc}));
     var pole=new LB();pole.box(.7,24,.7,-6,0,0,0x3a3a3a).box(.7,24,.7,6,0,0,0x3a3a3a);var pm=pole.mesh();pm.position.set(b.x,b.top-1,b.z);scene.add(pm);sg.position.set(b.x,b.top+21,b.z);scene.add(sg);LMSIGN.push(sg);LMK.push({m:pm,b:b,y:b.top});LMK.push({m:sg,b:b,y:b.top+21});}
   // --- Modřanské strojírny: dva komíny ---
-  b=nearestBld(-539,-509,140,300);
+  b=nearestBld(-539-WOX,-509-WOZ,140,300);
   if(b)onRoof(b,function(l,bb){for(var k=0;k<2;k++){for(var j=0;j<8;j++)l.cyl(2.1-j*.1,2.3-j*.1,4.6,k*13-6,j*4.4,(k?4:-4),j%2?0xece6d8:0xb5472f,10);}l.box(14,1.2,1.2,0,8,0,0x55524c);});
   // --- ČHMÚ: radarová kupole ---
-  b=nearestBld(-1124,-104,90,60);
+  b=nearestBld(-1124-WOX,-104-WOZ,90,60);
   if(b)onRoof(b,function(l,bb){l.cyl(.6,.9,14,0,0,0,0xe6e6e6,8).sph(3.2,0,15.5,0,0xf4f4f4);l.cyl(.15,.15,6,2,17,0,0xc03a30,4);});
   // --- zámek Komořany: nárožní věže ---
-  b=nearestBld(-1318,-99,80,100);
+  b=nearestBld(-1318-WOX,-99-WOZ,80,100);
   if(b){var bb2=bbox(b.p);onRoof(b,function(l){[[bb2[0],bb2[1]],[bb2[2],bb2[1]],[bb2[0],bb2[3]],[bb2[2],bb2[3]]].forEach(function(q){var x=q[0]-b.x,z=q[1]-b.z;l.cyl(2.4,2.6,8,x,-b.h,z,0xe2d6b8,10).cone(3.2,7,x,8-b.h,z,0x8a3a2a,10);});});}
   // --- pouliční prvky: zaparkovaná auta a zastávky ---
   parkedInit();
@@ -4840,13 +4850,14 @@ function showPending(){
   var t=pendingBuild,d=DEF[t];if(!d)return;
   $('selname').textContent=d.name;$('selname').style.color='#f2c777';
   $('selsub').textContent='Cena '+d.cost+' · stavba '+d.bt+' s';
-  $('bdesc').style.display='block';$('bdesc').textContent=helpText(t);$('bgo').style.display='inline-block';
+  $('bdesc').style.display='block';$('bdesc').textContent=helpText(t);$('bgo').style.display='none';
   $('portrait').className='';$('portrait').innerHTML=ico(t);
 }
 function clearPending(){pendingBuild=null;$('bdesc').style.display='none';$('bgo').style.display='none';}
 function buildPick(t){
-  if(pendingBuild===t){clearPending();startPlace(t);refreshPanel();return;}
-  pendingBuild=t;showPending();
+  if(placing&&placing.type===t){cancelPlace();return;}
+  clearPending();startPlace(t);
+  if(placing){pendingBuild=t;showPending();}
 }
 function setCmd(m){
   cmdMode=m;cv.style.cursor=m?'crosshair':'';
@@ -4970,7 +4981,44 @@ function aiSilo(mine){
   });
 }
 
+var WOX=0,WOZ=0,BOOT={};
+var WINS={klasik:['Klasický – Modřany a Točná',0,0],zbraslav:['Zbraslav a Točná',-1100,900],chuchle:['Chuchle a Modřany',-1200,-1300],libus:['Libuš a Písnice',1500,-1200],brezany:['Dolní Břežany a Točná',1500,1500]};
+function randWin(hw){var ax=268,az=173,M=hw-500,L=4000-hw;var x0=Math.max(-L,ax-M),x1=Math.min(L,ax+M),z0=Math.max(-L,az-M),z1=Math.min(L,az+M);return [Math.round((x0+Math.random()*(x1-x0))/10)*10,Math.round((z0+Math.random()*(z1-z0))/10)*10,hw];}
+function readBoot(){try{var m=/boot=([^&]+)/.exec(location.hash);if(m)BOOT=JSON.parse(decodeURIComponent(m[1]));}catch(_){BOOT={};}}
+function cropMap(d,cx,cz,HW){
+  HW=HW||2000;if(d.half<=HW)return d;
+  var G=d.grid,n8=d.n,c0=Math.round((cx+d.half-HW)/G),r0=Math.round((cz+d.half-HW)/G);
+  c0=Math.max(0,Math.min(n8-1-2*HW/G,c0));r0=Math.max(0,Math.min(n8-1-2*HW/G,r0));
+  WOX=-d.half+HW+c0*G;WOZ=-d.half+HW+r0*G;
+  var bin=atob(d.hd||d.h),i,all;
+  if(d.hd){all=new Float32Array(n8*n8);var p=0;for(var rr=0;rr<n8;rr++){var v=bin.charCodeAt(p)|(bin.charCodeAt(p+1)<<8);p+=2;all[rr*n8]=v/10+150;
+      for(var cc=1;cc<n8;cc++){var by=bin.charCodeAt(p++);if(by===128){v=bin.charCodeAt(p)|(bin.charCodeAt(p+1)<<8);p+=2;}else v+=(by>127?by-256:by);all[rr*n8+cc]=v/10+150;}}}
+  else{var u8=new Uint8Array(bin.length);for(i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);var a16=new Uint16Array(u8.buffer);all=new Float32Array(a16.length);for(i=0;i<a16.length;i++)all[i]=a16[i]/50+150;}
+  var n=Math.round(2*HW/G)+1,hU=new Float32Array(n*n);
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++)hU[r*n+c]=all[(r0+r)*n8+(c0+c)];
+  function sh(a,res,mg){var dx=Math.round(WOX/res),dz=Math.round(WOZ/res),o=new Array(a.length),L=(HW+mg)/res,x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;
+    for(var k=0;k<a.length;k+=2){var x=a[k]-dx,z=a[k+1]-dz;o[k]=x;o[k+1]=z;if(x<x0)x0=x;if(x>x1)x1=x;if(z<z0)z0=z;if(z>z1)z1=z;}return (x1>-L&&x0<L&&z1>-L&&z0<L)?o:null;}
+  var out={half:HW,grid:G,n:n,hF:hU,b:[],r:[],a:[],w:[],rl:[],l:[]};
+  d.b.forEach(function(b){var p=sh(b[2],.5,30);if(p)out.b.push([b[0],b[1],p]);});
+  d.r.forEach(function(r){var p=sh(r[2],1,80);if(p)out.r.push([r[0],r[1],p]);});
+  d.a.forEach(function(a){var rs=[],ok=false;for(var k=1;k<a.length;k++){var p=sh(a[k],1,300);if(p)ok=true;rs.push(p||a[k].map(function(v,ii){return v-(ii%2?WOZ:WOX);}));}if(ok)out.a.push([a[0]].concat(rs));});
+  d.w.forEach(function(w){var p=sh(w[1],1,80);if(p)out.w.push([w[0],p]);});
+  d.rl.forEach(function(w){var p=sh(w[1],1,80);if(p)out.rl.push([w[0],p]);});
+  d.l.forEach(function(l){var x=l[1]-WOX,z=l[2]-WOZ;if(Math.abs(x)<HW-20&&Math.abs(z)<HW-20)out.l.push([l[0],x,z,l[3]]);});
+  return out;
+}
+function wantHW(){var mis=+($('mis')||{value:0}).value,nen=+($('nen')||{value:1}).value;return (!mis&&nen===2)?3000:2000;}
+function wantWin(){var v=($('win')||{value:'klasik'}).value,mis=+($('mis')||{value:0}).value,hw=wantHW();if(mis)v='klasik';if(v==='nahodny')return randWin(hw);if(v==='vlastni'&&hw===HALF)return [WOX,WOZ,hw];var w=WINS[v]||WINS.klasik,L=4000-hw;return [Math.max(-L,Math.min(L,w[1])),Math.max(-L,Math.min(L,w[2])),hw];}
+function rebootTo(win,extra){
+  var b={win:win,fac:menuFac,mis:$('mis').value,nen:($('nen')||{value:1}).value,diff:diff,ws:($('win')||{value:'klasik'}).value};for(var k in extra)b[k]=extra[k];
+  $('go').disabled=true;$('go').textContent='Připravuji výsek mapy…';
+  location.hash='boot='+encodeURIComponent(JSON.stringify(b));location.reload();
+}
+function sameWin(w){return Math.abs(w[0]-WOX)<11&&Math.abs(w[1]-WOZ)<11&&(w[2]||2000)===HALF;}
 function init(data){
+  readBoot();
+  var w0=BOOT.win||[0,0,2000];data=cropMap(data,w0[0],w0[1],w0[2]||2000);
+  TEX=LOWQ?2048:(data.half>2000?6144:4096);
   MAPD=data;HALF=data.half;G=data.grid;NG=data.n;
   decodeHeights();carveWater();fogInit();decalInit();
   buildGroundCanvas();buildTerrainMesh();buildWater();carsInit();
@@ -4980,6 +5028,13 @@ function init(data){
   buildMiniBg();introHTML=$('mb').innerHTML;
   newGame();refreshPanel();
   $('go').disabled=false;$('go').textContent='Začít hru';
+  if(BOOT.ws&&$('win'))$('win').value=BOOT.ws;
+  if(BOOT.mis!=null)$('mis').value=BOOT.mis;if(BOOT.nen&&$('nen'))$('nen').value=BOOT.nen;
+  if(BOOT.diff){diff=BOOT.diff;document.querySelectorAll('[data-df]').forEach(function(q){q.className='tb'+(q.dataset.df===diff?' on':'');});}
+  if(BOOT.fac){menuFac=BOOT.fac;document.querySelectorAll('[data-fc]').forEach(function(q){q.className='fc'+(q.dataset.fc===menuFac?' on':'');});}
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
+  if(BOOT.load){setTimeout(function(){if(loadGame(BOOT.load)){state='play';$('modal').className='hide';}},50);}
+  else if(BOOT.auto){setTimeout(function(){newGame();state='play';$('modal').className='hide';},50);}
   window.__stats={tris:nb,trees:nt};
   initPost();setPost(postOn);
   requestAnimationFrame(frame);
