@@ -2083,7 +2083,7 @@ function bldNear(x,z,R,cb){
 }
 function markRange(rng,a,b){rng[0]=Math.min(rng[0],a);rng[1]=Math.max(rng[1],b);}
 function osmDamage(b,amt){
-  if(b.dead||amt<=0)return;
+  if(b.dead||!(amt>0))return;if(!isFinite(b.hp))b.hp=b.maxhp;
   b.hp-=amt;b.hitT=time;
   if(DMGB.indexOf(b)<0)DMGB.push(b);
   var f=.42+.58*Math.max(0,b.hp/b.maxhp),ca=BMESH.geometry.attributes.color.array;
@@ -2829,8 +2829,10 @@ function findEnemy(u,range){
   return best;
 }
 function damage(e,amt,src){
+  if(!(amt>0))return;
   if(e.osm){osmDamage(e,amt);return;}
   if(e.dead)return;
+  if(!isFinite(e.hp))e.hp=isFinite(e.maxhp)?e.maxhp:e.def.hp;if(!isFinite(e.maxhp))e.maxhp=e.def.hp;
   e.hp-=amt;if(e.team===0&&src&&src.team>0)auAlert(e);
   if(src&&!e.b&&e.def.wpn&&!e.order&&!e.target&&src.team!==e.team&&!src.dead&&!src.osm&&canHit(e,src))e.target=src;
   if(e.hp<=0){gainXP(src,e);kill(e);}
@@ -4222,7 +4224,7 @@ function loadGame(key){
   var n=0;while(collapsing.length&&n++<12)updateCollapse(5);flushBuildings();
   LOADING=false;
   o.e.forEach(function(s){
-    var e=spawn(s.t,s.m,s.x,s.z,s.p<1);e.hp=s.h;e.maxhp=s.mh;e.xp=s.xp;e.vet=s.v;e.prog=s.p;e.carry=s.c;e.face=s.f;
+    var e=spawn(s.t,s.m,s.x,s.z,s.p<1);e.maxhp=Number.isFinite(s.mh)?s.mh:e.maxhp;e.hp=Number.isFinite(s.h)?s.h:e.maxhp;e.xp=s.xp;e.vet=s.v;e.prog=s.p;e.carry=s.c;e.face=s.f;
     if(e.b){e.mesh.scale.y=s.p<1?.12+.88*s.p:1;}else e.mesh.rotation.y=s.f;
     e.queue=s.q.map(function(q){return {type:q[0],t:q[1]};});
     if(s.n!==undefined){e.cdN=s.n;e.cdS=s.s;}
@@ -4722,13 +4724,13 @@ function fireSilo(kind,e,x,z){
   }else if(e.team>0)msg('⚠ Nepřátelská salva raket letí na červený kruh!',3500);
   return true;
 }
-function areaDamage(x,z,R,maxD,pw,src,bMul){
+function blastDamage(x,z,R,maxD,pw,src,bMul){
   var i,e,d,f;
   for(i=0;i<ents.length;i++){e=ents[i];if(e.dead)continue;d=Math.hypot(e.x-x,e.z-z)-e.r;if(d>=R)continue;f=1-Math.max(0,d)/R;damage(e,maxD*Math.pow(f,pw)*(e.b?bMul:1),src);}
   for(i=0;i<BINFO.length;i++){var b=BINFO[i];if(b.dead)continue;d=Math.hypot(b.x-x,b.z-z)-b.r;if(d>=R)continue;f=1-Math.max(0,d)/R;damage(b,maxD*Math.pow(f,pw),src);}
 }
 function nukeBoom(x,z){
-  areaDamage(x,z,NUKE_R,3000,.8,null,1);
+  blastDamage(x,z,NUKE_R,3000,.8,null,1);
   RADS.push({x:x,z:z,r:NUKE_R*.7,t:45});CLOUDS.push({x:x,z:z,t:0});
   shake=Math.max(shake,6);
   var fl=document.getElementById('nflash');if(fl){fl.style.transition='none';fl.style.opacity=.95;void fl.offsetWidth;fl.style.transition='opacity 3s ease-out';fl.style.opacity=0;}
@@ -4737,7 +4739,7 @@ function nukeBoom(x,z){
   try{auWorm(true);}catch(_){}
   msg('☢ ATOMOVÝ VÝBUCH',4000);
 }
-function salvoBoom(x,z){areaDamage(x,z,SALVO_R,260,1,null,1);boom(x,z,2,18,0xffa040);shockwave(x,z,SALVO_R*.35);shake=Math.max(shake,.6);}
+function salvoBoom(x,z){blastDamage(x,z,SALVO_R,260,1,null,1);boom(x,z,2,18,0xffa040);shockwave(x,z,SALVO_R*.35);shake=Math.max(shake,.6);}
 function missilesUpdate(dt){
   for(var i=MIS.length-1;i>=0;i--){
     var m=MIS[i];m.t+=dt;if(m.t<0)continue;
